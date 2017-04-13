@@ -10,14 +10,14 @@ public abstract class GuiInventory extends Gui {
     private final ItemStack[] inv;
     private final InventorySlot.Provider slotProvider;
 
-    public GuiInventory(InventoryType type, String title, int size, Player player, InventorySlot.Provider slotProvider) {
+    public GuiInventory(InventoryType type, String title, Player player, ItemStack[] inv, InventorySlot.Provider slotProvider) {
         super(type, title, player);
-        this.inv = new ItemStack[size];
+        this.inv = inv;
         this.slotProvider = slotProvider;
     }
 
-    public GuiInventory(InventoryType type, String title, int size, Player player) {
-        this(type, title, size, player, InventorySlot::new);
+    public GuiInventory(InventoryType type, String title, Player player, ItemStack[] inv) {
+        this(type, title, player, inv, InventorySlot::new);
     }
 
     protected InventorySlot genSlot(int index) {
