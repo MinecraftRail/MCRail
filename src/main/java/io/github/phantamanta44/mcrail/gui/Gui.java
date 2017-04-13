@@ -28,10 +28,12 @@ public abstract class Gui {
 
     private final Inventory cont;
     private final GuiSlot[] slots;
+    private final Player player;
     
     public Gui(InventoryType type, String title, Player player) {
         this.cont = Bukkit.getServer().createInventory(null, type, title);
         this.slots = new GuiSlot[this.cont.getSize()];
+        this.player = player;
         RailMain.INSTANCE.guiHandler().register(this);
         Bukkit.getServer().getScheduler().runTaskLater(RailMain.INSTANCE, () -> player.openInventory(cont), 1L);
     }
@@ -50,12 +52,23 @@ public abstract class Gui {
 
     public void tick() {
         IntStream.range(0, slots.length)
-                .forEach(i -> cont.setItem(i, slots[i] != null ? slots[i].stack() : FILLER_STACK));
+                .forEach(i -> {
+                    if (slots[i] != null) {
+                        ItemStack stack = slots[i].stack();
+                        if (!cont.getItem(i).equals(stack))
+                            cont.setItem(i, stack);
+                    } else if (!cont.getItem(i).equals(FILLER_STACK)) {
+                        cont.setItem(i, FILLER_STACK);
+                    }
+                });
+        player.updateInventory();
     }
 
     public void onInteract(InventoryClickEvent event) {
-        if (!slots[event.getSlot()].click((Player)event.getWhoClicked(), event.getCursor()))
+        if (slots[event.getSlot()] == null
+                || !slots[event.getSlot()].click((Player)event.getWhoClicked(), event.getCursor())) {
             event.setCancelled(true);
+        }
     }
     
     public abstract void init();
