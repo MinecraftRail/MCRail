@@ -1,55 +1,86 @@
 package io.github.phantamanta44.mcrail.sign;
 
+import io.github.phantamanta44.mcrail.RailMain;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.List;
 
 public class SignBlockHandler implements Listener {
 
-    private final Set<UUID> placing = new HashSet<>();
-
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
-        if (event.getItemInHand().getType() == Material.SIGN) {
-            // TODO Implement
+        ItemStack stack = event.getItemInHand();
+        if (stack.getType() == Material.SIGN && stack.hasItemMeta()) {
+            ItemMeta meta = stack.getItemMeta();
+            if (meta.hasLore()) {
+                List<String> lore = meta.getLore();
+                String last = lore.get(lore.size() - 1);
+                if (last.startsWith("ID: ")) {
+                    String id = last.substring(4);
+                    if (RailMain.INSTANCE.registry().isValidId(id)) {
+                        RailMain.INSTANCE.signManager().register(event.getBlock());
+                        Bukkit.getServer().getScheduler().runTaskLater(
+                                RailMain.INSTANCE, () -> event.getPlayer().closeInventory(), 1L);
+                    } else {
+                        event.setCancelled(true);
+                        event.getPlayer().sendMessage(ChatColor.RED + "Not a valid sign!");
+                    }
+                }
+            }
         }
     }
 
     @EventHandler
     public void onSignEdit(SignChangeEvent event) {
-        if (placing.contains(event.getPlayer().getUniqueId())) {
-            // TODO Implement
+        if (RailMain.INSTANCE.signManager().existsAt(event.getBlock())) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(ChatColor.RED + "You can't edit this sign!");
         }
     }
 
-    private void breakCheck() {
-        // TODO Break check
+    @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+        if ((event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK)
+                && (event.getClickedBlock().getType() == Material.SIGN_POST || event.getClickedBlock().getType() == Material.WALL_SIGN)) {
+            RailMain.INSTANCE.signManager().onSignClick(event);
+        }
+    }
+
+    private boolean breakCheck(Block block) {
+        return (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN)
+                && RailMain.INSTANCE.signManager().breakCheck(block);
     }
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        breakCheck();
+        if (breakCheck(event.getBlock()))
+            event.setCancelled(true);
     }
 
     @EventHandler
     public void onExplode(EntityExplodeEvent event) {
-        breakCheck();
+        event.blockList().removeIf(this::breakCheck);
     }
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
-        breakCheck();
+        event.blockList().removeIf(this::breakCheck);
     }
 
     @EventHandler
     public void onPhysicsUpdate(BlockPhysicsEvent event) {
-        breakCheck();
+        if (breakCheck(event.getBlock()))
+            event.setCancelled(true);
     }
 
 }
