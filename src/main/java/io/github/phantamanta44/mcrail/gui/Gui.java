@@ -65,12 +65,10 @@ public abstract class Gui {
     }
 
     public void onInteract(InventoryClickEvent event) {
-        if (slots[event.getSlot()] == null
-                || !slots[event.getSlot()].click((Player)event.getWhoClicked(), event.getCursor())) {
+        if (slots[event.getSlot()] == null || slots[event.getSlot()].onInteract((Player)event.getWhoClicked(), event))
             event.setCancelled(true);
-        }
     }
-    
+
     public abstract void init();
 
     public void destroy() {

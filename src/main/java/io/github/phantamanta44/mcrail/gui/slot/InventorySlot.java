@@ -2,6 +2,7 @@ package io.github.phantamanta44.mcrail.gui.slot;
 
 import io.github.phantamanta44.mcrail.gui.GuiInventory;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class InventorySlot extends GuiSlot {
@@ -20,9 +21,8 @@ public class InventorySlot extends GuiSlot {
     }
 
     @Override
-    public boolean click(Player player, ItemStack stack) {
-        gui.set(index, stack);
-        return true;
+    public boolean onInteract(Player player, InventoryClickEvent event) {
+        return false; // TODO Logic
     }
 
     @FunctionalInterface
