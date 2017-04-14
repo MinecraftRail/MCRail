@@ -9,20 +9,27 @@ public class InventorySlot extends GuiSlot {
 
     private final GuiInventory gui;
     private final int index;
+    protected boolean dirty;
 
     public InventorySlot(GuiInventory gui, int index) {
         this.gui = gui;
         this.index = index;
+        this.dirty = false;
     }
 
     @Override
     public ItemStack stack() {
+        if (dirty) {
+            gui.set(index, gui.inventory().getItem(gui.indexOf(this)));
+            dirty = false;
+        }
         return gui.get(index);
     }
 
     @Override
     public boolean onInteract(Player player, InventoryClickEvent event) {
-        return false; // TODO Logic
+        dirty = true;
+        return true;
     }
 
     @FunctionalInterface

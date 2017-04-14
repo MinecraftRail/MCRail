@@ -2,6 +2,7 @@ package io.github.phantamanta44.mcrail.gui;
 
 import io.github.phantamanta44.mcrail.RailMain;
 import io.github.phantamanta44.mcrail.gui.slot.GuiSlot;
+import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -48,6 +49,10 @@ public abstract class Gui {
 
     public GuiSlot slot(int index) {
         return slots[index];
+    }
+
+    public int indexOf(GuiSlot slot) {
+        return ArrayUtils.indexOf(slots, slot);
     }
 
     public void tick() {
