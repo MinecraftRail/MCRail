@@ -2,7 +2,6 @@ package io.github.phantamanta44.mcrail.gui;
 
 import io.github.phantamanta44.mcrail.gui.slot.InventorySlot;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class GuiInventory extends Gui {
@@ -10,14 +9,14 @@ public abstract class GuiInventory extends Gui {
     private final ItemStack[] inv;
     private final InventorySlot.Provider slotProvider;
 
-    public GuiInventory(InventoryType type, String title, Player player, ItemStack[] inv, InventorySlot.Provider slotProvider) {
-        super(type, title, player);
+    public GuiInventory(int rows, String title, Player player, ItemStack[] inv, InventorySlot.Provider slotProvider) {
+        super(rows, title, player);
         this.inv = inv;
         this.slotProvider = slotProvider;
     }
 
-    public GuiInventory(InventoryType type, String title, Player player, ItemStack[] inv) {
-        this(type, title, player, inv, InventorySlot::new);
+    public GuiInventory(int rows, String title, Player player, ItemStack[] inv) {
+        this(rows, title, player, inv, InventorySlot::new);
     }
 
     protected InventorySlot genSlot(int index) {

@@ -1,5 +1,6 @@
 package io.github.phantamanta44.mcrail.util;
 
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -32,9 +33,31 @@ public class BlockPos {
         return Bukkit.getServer().getWorld(world);
     }
 
+    public String worldName() {
+        return world;
+    }
+
     public Block block() {
         World world = world();
         return world != null ? world.getBlockAt(x, y, z) : null;
+    }
+
+    public JsonObject serialize() {
+        JsonObject dto = new JsonObject();
+        dto.addProperty("world", world);
+        dto.addProperty("x", x);
+        dto.addProperty("y", y);
+        dto.addProperty("z", z);
+        return dto;
+    }
+
+    public static BlockPos deserialize(JsonObject dto) {
+        return new BlockPos(
+                dto.get("world").getAsString(),
+                dto.get("x").getAsInt(),
+                dto.get("y").getAsInt(),
+                dto.get("z").getAsInt()
+        );
     }
 
     @Override

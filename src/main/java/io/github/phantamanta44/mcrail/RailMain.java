@@ -1,9 +1,12 @@
 package io.github.phantamanta44.mcrail;
 
+import io.github.phantamanta44.mcrail.command.CommandSign;
+import io.github.phantamanta44.mcrail.command.CommandSigns;
 import io.github.phantamanta44.mcrail.gui.GuiHandler;
 import io.github.phantamanta44.mcrail.sign.SignBlockHandler;
-import io.github.phantamanta44.mcrail.tile.SignManager;
-import io.github.phantamanta44.mcrail.tile.SignRegistry;
+import io.github.phantamanta44.mcrail.sign.SignManager;
+import io.github.phantamanta44.mcrail.sign.SignRegistry;
+import io.github.phantamanta44.mcrail.sign.WorldDataHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,6 +22,7 @@ public class RailMain extends JavaPlugin {
 
     private SignRegistry signReg;
     private SignManager signMan;
+    private WorldDataHandler wdh;
     private GuiHandler guiHandler;
 
     private BukkitTask tickTask;
@@ -32,15 +36,20 @@ public class RailMain extends JavaPlugin {
         signReg = new SignRegistry();
         signMan = new SignManager();
         Bukkit.getServer().getPluginManager().registerEvents(new SignBlockHandler(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(wdh = new WorldDataHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(guiHandler = new GuiHandler(), this);
+        Bukkit.getServer().getPluginCommand("rsigns").setExecutor(new CommandSigns());
+        Bukkit.getServer().getPluginCommand("rsign").setExecutor(new CommandSign());
         tick = 0L;
         tickTask = Bukkit.getServer().getScheduler().runTaskTimer(this, this::tick, 1L, 1L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(RailMain.INSTANCE, wdh::saveAll);
     }
 
     @Override
     public void onDisable() {
         tickTask.cancel();
         HandlerList.unregisterAll(this);
+        wdh.saveAll();
     }
 
     public void onTick(LongConsumer handler) {

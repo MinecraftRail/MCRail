@@ -1,4 +1,4 @@
-package io.github.phantamanta44.mcrail.tile;
+package io.github.phantamanta44.mcrail.sign;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -6,6 +6,7 @@ import org.bukkit.block.Sign;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class SignRegistry {
 
@@ -26,18 +27,20 @@ public class SignRegistry {
         return registry.containsKey(id.toLowerCase());
     }
 
-    public SignEntity createEntity(Block block) {
+    public SignEntity createEntity(String id, Block block) {
         Sign sign = (Sign)block.getState();
-        String header = sign.getLine(0).toLowerCase();
-        if (header.startsWith("&")) {
-            Function<Block, SignEntity> provider = registry.get(header.substring(1));
-            if (provider != null) {
-                sign.setLine(0, header);
-                sign.update();
-                return provider.apply(block);
-            }
-        }
-        return null;
+        sign.setLine(0, "[" + id + "]");
+        sign.update();
+        Function<Block, SignEntity> provider = registry.get(id);
+        return provider != null ? provider.apply(block) : null;
+    }
+
+    public Function<Block, SignEntity> providerFor(String id) {
+        return registry.get(id);
+    }
+
+    public Stream<String> validIds() {
+        return registry.keySet().stream();
     }
 
 }

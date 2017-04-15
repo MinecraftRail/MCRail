@@ -3,3 +3,15 @@ version: ${project.version}
 description: Automation stuff.
 website: http://phanta.xyz
 main: io.github.phantamanta44.mcrail.RailMain
+commands:
+  rsigns:
+    usage: "/rsigns"
+    description: Lists available sign IDs for Rail.
+  rsign:
+    usage: "/rsign <id> [amount]"
+    description: Spawns an amount of signs by ID.
+permissions:
+  rail.signs:
+    description: "Allows the usage of /rsigns."
+  rail.sign:
+    description: "Allows the usage of /rsign."

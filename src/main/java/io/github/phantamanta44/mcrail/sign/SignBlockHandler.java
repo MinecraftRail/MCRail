@@ -12,6 +12,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Sign;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class SignBlockHandler implements Listener {
                 if (last.startsWith("ID: ")) {
                     String id = last.substring(4);
                     if (RailMain.INSTANCE.registry().isValidId(id)) {
-                        RailMain.INSTANCE.signManager().register(event.getBlock());
+                        RailMain.INSTANCE.signManager().register(id, event.getBlock());
                         Bukkit.getServer().getScheduler().runTaskLater(
                                 RailMain.INSTANCE, () -> event.getPlayer().closeInventory(), 1L);
                     } else {
@@ -42,10 +43,8 @@ public class SignBlockHandler implements Listener {
 
     @EventHandler
     public void onSignEdit(SignChangeEvent event) {
-        if (RailMain.INSTANCE.signManager().existsAt(event.getBlock())) {
+        if (RailMain.INSTANCE.signManager().existsAt(event.getBlock()))
             event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "You can't edit this sign!");
-        }
     }
 
     @EventHandler
@@ -79,8 +78,13 @@ public class SignBlockHandler implements Listener {
 
     @EventHandler
     public void onPhysicsUpdate(BlockPhysicsEvent event) {
-        if (breakCheck(event.getBlock()))
-            event.setCancelled(true);
+        if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
+            Sign sign = (Sign)event.getBlock().getState().getData();
+            if (!event.getBlock().getRelative(sign.getAttachedFace()).getType().isSolid()
+                    && RailMain.INSTANCE.signManager().breakCheck(event.getBlock())) {
+                event.setCancelled(true);
+            }
+        }
     }
 
 }

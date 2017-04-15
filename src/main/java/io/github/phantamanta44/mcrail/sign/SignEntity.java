@@ -1,5 +1,6 @@
-package io.github.phantamanta44.mcrail.tile;
+package io.github.phantamanta44.mcrail.sign;
 
+import com.google.gson.JsonObject;
 import io.github.phantamanta44.mcrail.util.BlockPos;
 import io.github.phantamanta44.mcrail.util.Lines;
 import io.github.phantamanta44.mcrail.util.SignDir;
@@ -69,5 +70,9 @@ public abstract class SignEntity {
     public void onInteract(PlayerInteractEvent event) {
         // NO-OP
     }
+
+    public abstract JsonObject serialize();
+
+    public abstract void deserialize(JsonObject dto);
 
 }
