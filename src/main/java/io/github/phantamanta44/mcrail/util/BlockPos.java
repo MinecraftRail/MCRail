@@ -42,6 +42,18 @@ public class BlockPos {
         return world != null ? world.getBlockAt(x, y, z) : null;
     }
 
+    public int x() {
+        return x;
+    }
+
+    public int y() {
+        return y;
+    }
+
+    public int z() {
+        return z;
+    }
+
     public JsonObject serialize() {
         JsonObject dto = new JsonObject();
         dto.addProperty("world", world);

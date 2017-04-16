@@ -1,4 +1,4 @@
-package io.github.phantamanta44.mcrail.util;
+package io.github.phantamanta44.mcrail.sign;
 
 import org.bukkit.block.Sign;
 

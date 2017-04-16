@@ -25,7 +25,7 @@ public class CommandSign implements CommandExecutor {
         } else if (args.length < 1) {
             sender.sendMessage(ChatColor.RED + "Must provide a sign ID!");
             return true;
-        } else if (!RailMain.INSTANCE.registry().isValidId(args[0])) {
+        } else if (!RailMain.INSTANCE.signRegistry().isValidId(args[0])) {
             sender.sendMessage(ChatColor.RED + "Invalid sign ID!");
             return true;
         }

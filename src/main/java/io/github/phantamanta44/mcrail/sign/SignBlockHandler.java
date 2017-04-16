@@ -1,6 +1,7 @@
 package io.github.phantamanta44.mcrail.sign;
 
 import io.github.phantamanta44.mcrail.RailMain;
+import io.github.phantamanta44.mcrail.util.SignUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -28,7 +29,7 @@ public class SignBlockHandler implements Listener {
                 String last = lore.get(lore.size() - 1);
                 if (last.startsWith("ID: ")) {
                     String id = last.substring(4);
-                    if (RailMain.INSTANCE.registry().isValidId(id)) {
+                    if (RailMain.INSTANCE.signRegistry().isValidId(id)) {
                         RailMain.INSTANCE.signManager().register(id, event.getBlock());
                         Bukkit.getServer().getScheduler().runTaskLater(
                                 RailMain.INSTANCE, () -> event.getPlayer().closeInventory(), 1L);
@@ -43,7 +44,7 @@ public class SignBlockHandler implements Listener {
 
     @EventHandler
     public void onSignEdit(SignChangeEvent event) {
-        if (RailMain.INSTANCE.signManager().existsAt(event.getBlock()))
+        if (SignUtils.existsAt(event.getBlock()))
             event.setCancelled(true);
     }
 

@@ -16,17 +16,18 @@ import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.LongConsumer;
 
-public class SignManager {
+public class SignManager implements LongConsumer {
 
     private final Map<BlockPos, SignEntity> entities;
 
     public SignManager() {
         this.entities = new HashMap<>();
-        RailMain.INSTANCE.onTick(this::tick);
     }
 
-    private void tick(long tick) {
+    @Override
+    public void accept(long tick) {
         entities.entrySet().stream()
                 .filter(e -> e.getKey().exists())
                 .map(Map.Entry::getValue)
@@ -54,7 +55,7 @@ public class SignManager {
     }
 
     public void register(String id, Block block) {
-        SignEntity se = RailMain.INSTANCE.registry().createEntity(id, block);
+        SignEntity se = RailMain.INSTANCE.signRegistry().createEntity(id, block);
         se.init();
         entities.put(new BlockPos(block), se);
     }
@@ -97,7 +98,7 @@ public class SignManager {
                 dto.forEach(e -> {
                     JsonObject dto2 = e.getAsJsonObject();
                     BlockPos pos = BlockPos.deserialize(dto2.get("pos").getAsJsonObject());
-                    SignEntity se = RailMain.INSTANCE.registry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
+                    SignEntity se = RailMain.INSTANCE.signRegistry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
                     entities.put(pos, se);
                 });
             } catch (IOException e) {
@@ -107,12 +108,12 @@ public class SignManager {
         }
     }
 
-    public SignEntity getAt(Block block) {
-        return entities.get(new BlockPos(block));
+    public SignEntity getAt(BlockPos pos) {
+        return entities.get(pos);
     }
 
-    public boolean existsAt(Block block) {
-        return entities.containsKey(new BlockPos(block));
+    public boolean existsAt(BlockPos pos) {
+        return entities.containsKey(pos);
     }
 
 }

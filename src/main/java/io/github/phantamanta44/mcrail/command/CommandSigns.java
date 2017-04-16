@@ -19,7 +19,7 @@ public class CommandSigns implements CommandExecutor {
         }
         sender.sendMessage(new String[] {
                 "Valid Sign IDs:",
-                RailMain.INSTANCE.registry().validIds().collect(Collectors.joining(", "))
+                RailMain.INSTANCE.signRegistry().validIds().collect(Collectors.joining(", "))
         });
         return true;
     }

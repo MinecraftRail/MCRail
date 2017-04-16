@@ -1,14 +1,20 @@
 package io.github.phantamanta44.mcrail;
 
+import io.github.phantamanta44.mcrail.adapter.AdapterRegistry;
 import io.github.phantamanta44.mcrail.command.CommandSign;
 import io.github.phantamanta44.mcrail.command.CommandSigns;
+import io.github.phantamanta44.mcrail.fluid.FluidBucketAdapter;
+import io.github.phantamanta44.mcrail.fluid.FluidRegistry;
+import io.github.phantamanta44.mcrail.fluid.IFluidContainer;
 import io.github.phantamanta44.mcrail.gui.GuiHandler;
 import io.github.phantamanta44.mcrail.sign.SignBlockHandler;
 import io.github.phantamanta44.mcrail.sign.SignManager;
 import io.github.phantamanta44.mcrail.sign.SignRegistry;
 import io.github.phantamanta44.mcrail.sign.WorldDataHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -21,6 +27,10 @@ public class RailMain extends JavaPlugin {
     public static RailMain INSTANCE;
 
     private SignRegistry signReg;
+    private FluidRegistry fluidReg;
+    private AdapterRegistry<Block> blockAdapterReg;
+    private AdapterRegistry<ItemStack> itemAdapterReg;
+
     private SignManager signMan;
     private WorldDataHandler wdh;
     private GuiHandler guiHandler;
@@ -34,7 +44,11 @@ public class RailMain extends JavaPlugin {
         INSTANCE = this;
         tickHandlers = new LinkedList<>();
         signReg = new SignRegistry();
-        signMan = new SignManager();
+        fluidReg = new FluidRegistry();
+        blockAdapterReg = new AdapterRegistry<>();
+        itemAdapterReg = new AdapterRegistry<>();
+        itemAdapterReg.register(IFluidContainer.class, new FluidBucketAdapter());
+        onTick(signMan = new SignManager());
         Bukkit.getServer().getPluginManager().registerEvents(new SignBlockHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(wdh = new WorldDataHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(guiHandler = new GuiHandler(), this);
@@ -61,8 +75,20 @@ public class RailMain extends JavaPlugin {
         tick++;
     }
 
-    public SignRegistry registry() {
+    public SignRegistry signRegistry() {
         return signReg;
+    }
+
+    public FluidRegistry fluidRegistry() {
+        return fluidReg;
+    }
+
+    public AdapterRegistry<Block> blockAdapters() {
+        return blockAdapterReg;
+    }
+
+    public AdapterRegistry<ItemStack> itemAdapters() {
+        return itemAdapterReg;
     }
 
     public SignManager signManager() {
