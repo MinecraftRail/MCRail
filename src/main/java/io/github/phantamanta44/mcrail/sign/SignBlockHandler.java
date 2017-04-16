@@ -1,6 +1,6 @@
 package io.github.phantamanta44.mcrail.sign;
 
-import io.github.phantamanta44.mcrail.RailMain;
+import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.util.SignUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -29,10 +29,10 @@ public class SignBlockHandler implements Listener {
                 String last = lore.get(lore.size() - 1);
                 if (last.startsWith("ID: ")) {
                     String id = last.substring(4);
-                    if (RailMain.INSTANCE.signRegistry().isValidId(id)) {
-                        RailMain.INSTANCE.signManager().register(id, event.getBlock());
+                    if (Rail.signRegistry().isValidId(id)) {
+                        Rail.signManager().register(id, event.getBlock());
                         Bukkit.getServer().getScheduler().runTaskLater(
-                                RailMain.INSTANCE, () -> event.getPlayer().closeInventory(), 1L);
+                                Rail.INSTANCE, () -> event.getPlayer().closeInventory(), 1L);
                     } else {
                         event.setCancelled(true);
                         event.getPlayer().sendMessage(ChatColor.RED + "Not a valid sign!");
@@ -52,13 +52,13 @@ public class SignBlockHandler implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         if ((event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK)
                 && (event.getClickedBlock().getType() == Material.SIGN_POST || event.getClickedBlock().getType() == Material.WALL_SIGN)) {
-            RailMain.INSTANCE.signManager().onSignClick(event);
+            Rail.signManager().onSignClick(event);
         }
     }
 
     private boolean breakCheck(Block block) {
         return (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN)
-                && RailMain.INSTANCE.signManager().breakCheck(block);
+                && Rail.signManager().breakCheck(block);
     }
 
     @EventHandler
@@ -82,7 +82,7 @@ public class SignBlockHandler implements Listener {
         if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
             Sign sign = (Sign)event.getBlock().getState().getData();
             if (!event.getBlock().getRelative(sign.getAttachedFace()).getType().isSolid()
-                    && RailMain.INSTANCE.signManager().breakCheck(event.getBlock())) {
+                    && Rail.signManager().breakCheck(event.getBlock())) {
                 event.setCancelled(true);
             }
         }

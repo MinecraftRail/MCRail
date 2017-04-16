@@ -22,9 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.LongConsumer;
 
-public class RailMain extends JavaPlugin {
+public class Rail extends JavaPlugin {
 
-    public static RailMain INSTANCE;
+    public static Rail INSTANCE;
 
     private SignRegistry signReg;
     private FluidRegistry fluidReg;
@@ -56,7 +56,7 @@ public class RailMain extends JavaPlugin {
         Bukkit.getServer().getPluginCommand("rsign").setExecutor(new CommandSign());
         tick = 0L;
         tickTask = Bukkit.getServer().getScheduler().runTaskTimer(this, this::tick, 1L, 1L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(RailMain.INSTANCE, wdh::saveAll);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, wdh::saveAll);
     }
 
     @Override
@@ -75,28 +75,28 @@ public class RailMain extends JavaPlugin {
         tick++;
     }
 
-    public SignRegistry signRegistry() {
-        return signReg;
+    public static SignRegistry signRegistry() {
+        return INSTANCE.signReg;
     }
 
-    public FluidRegistry fluidRegistry() {
-        return fluidReg;
+    public static FluidRegistry fluidRegistry() {
+        return INSTANCE.fluidReg;
     }
 
-    public AdapterRegistry<Block> blockAdapters() {
-        return blockAdapterReg;
+    public static AdapterRegistry<Block> blockAdapters() {
+        return INSTANCE.blockAdapterReg;
     }
 
-    public AdapterRegistry<ItemStack> itemAdapters() {
-        return itemAdapterReg;
+    public static AdapterRegistry<ItemStack> itemAdapters() {
+        return INSTANCE.itemAdapterReg;
     }
 
-    public SignManager signManager() {
-        return signMan;
+    public static SignManager signManager() {
+        return INSTANCE.signMan;
     }
 
-    public GuiHandler guiHandler() {
-        return guiHandler;
+    public static GuiHandler guiHandler() {
+        return INSTANCE.guiHandler;
     }
 
 }

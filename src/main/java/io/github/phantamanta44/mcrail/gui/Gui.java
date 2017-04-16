@@ -1,6 +1,6 @@
 package io.github.phantamanta44.mcrail.gui;
 
-import io.github.phantamanta44.mcrail.RailMain;
+import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.gui.slot.GuiSlot;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
@@ -33,8 +33,8 @@ public abstract class Gui {
         this.cont = Bukkit.getServer().createInventory(null, rows * 9, title);
         this.slots = new GuiSlot[this.cont.getSize()];
         this.player = player;
-        RailMain.INSTANCE.guiHandler().register(this);
-        Bukkit.getServer().getScheduler().runTaskLater(RailMain.INSTANCE, () -> {
+        Rail.guiHandler().register(this);
+        Bukkit.getServer().getScheduler().runTaskLater(Rail.INSTANCE, () -> {
             init();
             player.openInventory(cont);
         }, 1L);

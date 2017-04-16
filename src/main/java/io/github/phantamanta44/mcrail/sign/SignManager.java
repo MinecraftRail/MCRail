@@ -2,7 +2,7 @@ package io.github.phantamanta44.mcrail.sign;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.github.phantamanta44.mcrail.RailMain;
+import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.util.BlockPos;
 import io.github.phantamanta44.mcrail.util.JsonUtils;
 import org.bukkit.Location;
@@ -55,7 +55,7 @@ public class SignManager implements LongConsumer {
     }
 
     public void register(String id, Block block) {
-        SignEntity se = RailMain.INSTANCE.signRegistry().createEntity(id, block);
+        SignEntity se = Rail.signRegistry().createEntity(id, block);
         se.init();
         entities.put(new BlockPos(block), se);
     }
@@ -67,7 +67,7 @@ public class SignManager implements LongConsumer {
     }
 
     public void save(World world) {
-        File file = new File(RailMain.INSTANCE.getDataFolder(), "world_" + world.getName() + ".json");
+        File file = new File(Rail.INSTANCE.getDataFolder(), "world_" + world.getName() + ".json");
         file.getParentFile().mkdirs();
         JsonArray dto = new JsonArray();
         entities.entrySet().stream()
@@ -84,25 +84,25 @@ public class SignManager implements LongConsumer {
         try (PrintStream out = new PrintStream(new FileOutputStream(file))) {
             out.println(JsonUtils.GSON.toJson(dto));
         } catch (IOException e) {
-            RailMain.INSTANCE.getLogger().severe("Failed to save sign entity data in world: " + world.getName());
+            Rail.INSTANCE.getLogger().severe("Failed to save sign entity data in world: " + world.getName());
             e.printStackTrace();
         }
     }
 
     public void load(World world) {
         entities.entrySet().removeIf(e -> e.getKey().world().equals(world));
-        File file = new File(RailMain.INSTANCE.getDataFolder(), "world_" + world.getName() + ".json");
+        File file = new File(Rail.INSTANCE.getDataFolder(), "world_" + world.getName() + ".json");
         if (file.exists()) {
             try (Reader in = new BufferedReader(new FileReader(file))) {
                 JsonArray dto = JsonUtils.JSONP.parse(in).getAsJsonArray();
                 dto.forEach(e -> {
                     JsonObject dto2 = e.getAsJsonObject();
                     BlockPos pos = BlockPos.deserialize(dto2.get("pos").getAsJsonObject());
-                    SignEntity se = RailMain.INSTANCE.signRegistry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
+                    SignEntity se = Rail.signRegistry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
                     entities.put(pos, se);
                 });
             } catch (IOException e) {
-                RailMain.INSTANCE.getLogger().severe("Failed to load sign entity data in world: " + world.getName());
+                Rail.INSTANCE.getLogger().severe("Failed to load sign entity data in world: " + world.getName());
                 e.printStackTrace();
             }
         }

@@ -1,6 +1,6 @@
 package io.github.phantamanta44.mcrail.command;
 
-import io.github.phantamanta44.mcrail.RailMain;
+import io.github.phantamanta44.mcrail.Rail;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,7 +19,7 @@ public class CommandSigns implements CommandExecutor {
         }
         sender.sendMessage(new String[] {
                 "Valid Sign IDs:",
-                RailMain.INSTANCE.signRegistry().validIds().collect(Collectors.joining(", "))
+                Rail.signRegistry().validIds().collect(Collectors.joining(", "))
         });
         return true;
     }

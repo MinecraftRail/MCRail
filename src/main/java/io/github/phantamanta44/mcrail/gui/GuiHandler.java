@@ -1,6 +1,6 @@
 package io.github.phantamanta44.mcrail.gui;
 
-import io.github.phantamanta44.mcrail.RailMain;
+import io.github.phantamanta44.mcrail.Rail;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
@@ -17,7 +17,7 @@ public class GuiHandler implements Listener {
 
     public GuiHandler() {
         this.guis = new CopyOnWriteArraySet<>();
-        RailMain.INSTANCE.onTick(this::tick);
+        Rail.INSTANCE.onTick(this::tick);
     }
 
     public void register(Gui gui) {

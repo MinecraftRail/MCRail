@@ -1,6 +1,6 @@
 package io.github.phantamanta44.mcrail.command;
 
-import io.github.phantamanta44.mcrail.RailMain;
+import io.github.phantamanta44.mcrail.Rail;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -25,7 +25,7 @@ public class CommandSign implements CommandExecutor {
         } else if (args.length < 1) {
             sender.sendMessage(ChatColor.RED + "Must provide a sign ID!");
             return true;
-        } else if (!RailMain.INSTANCE.signRegistry().isValidId(args[0])) {
+        } else if (!Rail.signRegistry().isValidId(args[0])) {
             sender.sendMessage(ChatColor.RED + "Invalid sign ID!");
             return true;
         }
