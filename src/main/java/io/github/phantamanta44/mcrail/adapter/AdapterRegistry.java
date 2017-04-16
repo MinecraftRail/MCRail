@@ -1,8 +1,5 @@
 package io.github.phantamanta44.mcrail.adapter;
 
-import io.github.phantamanta44.mcrail.fluid.BucketWrapper;
-import io.github.phantamanta44.mcrail.fluid.IFluidContainer;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
