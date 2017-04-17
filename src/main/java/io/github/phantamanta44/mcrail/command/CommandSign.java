@@ -41,7 +41,7 @@ public class CommandSign implements CommandExecutor {
         ItemStack stack = new ItemStack(Material.SIGN, amount);
         ItemMeta meta = stack.getItemMeta();
         meta.setDisplayName("Rail Sign: " + args[0]);
-        meta.setLore(Collections.singletonList("ID: " + args[0]));
+        meta.setLore(Collections.singletonList(ChatColor.DARK_GRAY + "ID: " + args[0]));
         stack.setItemMeta(meta);
         ((Player)sender).getInventory().addItem(stack);
         return true;

@@ -27,8 +27,8 @@ public class SignBlockHandler implements Listener {
             if (meta.hasLore()) {
                 List<String> lore = meta.getLore();
                 String last = lore.get(lore.size() - 1);
-                if (last.startsWith("ID: ")) {
-                    String id = last.substring(4);
+                if (last.startsWith(ChatColor.DARK_GRAY + "ID: ")) {
+                    String id = last.substring(4 + ChatColor.DARK_GRAY.toString().length());
                     if (Rail.signRegistry().isValidId(id)) {
                         Rail.signManager().register(id, event.getBlock());
                         Bukkit.getServer().getScheduler().runTaskLater(
