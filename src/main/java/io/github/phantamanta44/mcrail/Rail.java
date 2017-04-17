@@ -99,4 +99,8 @@ public class Rail extends JavaPlugin {
         return INSTANCE.guiHandler;
     }
 
+    public static long currentTick() {
+        return INSTANCE.tick;
+    }
+
 }
