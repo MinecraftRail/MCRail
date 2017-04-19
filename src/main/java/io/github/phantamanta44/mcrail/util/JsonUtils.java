@@ -11,7 +11,7 @@ public class JsonUtils {
     public static final JsonParser JSONP = new JsonParser();
 
     public static JsonElement serItemStack(ItemStack stack) {
-        return stack != null
+        return ItemUtils.isNotNully(stack)
                 ? GSON.toJsonTree(stack.serialize(), Map.class)
                 : JsonNull.INSTANCE;
     }

@@ -3,6 +3,7 @@ package io.github.phantamanta44.mcrail;
 import io.github.phantamanta44.mcrail.adapter.AdapterRegistry;
 import io.github.phantamanta44.mcrail.command.CommandSign;
 import io.github.phantamanta44.mcrail.command.CommandSigns;
+import io.github.phantamanta44.mcrail.crafting.CraftingHandler;
 import io.github.phantamanta44.mcrail.fluid.FluidBucketAdapter;
 import io.github.phantamanta44.mcrail.fluid.FluidRegistry;
 import io.github.phantamanta44.mcrail.fluid.IFluidContainer;
@@ -52,6 +53,7 @@ public class Rail extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new SignBlockHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(wdh = new WorldDataHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(guiHandler = new GuiHandler(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new CraftingHandler(), this);
         Bukkit.getServer().getPluginCommand("rsigns").setExecutor(new CommandSigns());
         Bukkit.getServer().getPluginCommand("rsign").setExecutor(new CommandSign());
         tick = 0L;

@@ -2,6 +2,7 @@ package io.github.phantamanta44.mcrail.gui;
 
 import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.gui.slot.GuiSlot;
+import io.github.phantamanta44.mcrail.util.ItemUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -62,13 +63,13 @@ public abstract class Gui {
                     ItemStack currentDisplay = cont.getItem(i);
                     if (slots[i] != null) {
                         ItemStack stack = slots[i].stack();
-                        if (stack == null) {
-                            if (currentDisplay != null)
+                        if (ItemUtils.isNully(stack)) {
+                            if (ItemUtils.isNotNully(currentDisplay))
                                 cont.setItem(i, null);
-                        } else if (currentDisplay == null || !currentDisplay.equals(stack)) {
+                        } else if (ItemUtils.isNully(currentDisplay) || !currentDisplay.equals(stack)) {
                             cont.setItem(i, stack);
                         }
-                    } else if (currentDisplay == null || !currentDisplay.equals(FILLER_STACK)) {
+                    } else if (ItemUtils.isNully(currentDisplay) || !currentDisplay.equals(FILLER_STACK)) {
                         cont.setItem(i, FILLER_STACK);
                     }
                 });
