@@ -22,7 +22,7 @@ public class AdapterRegistry<T> {
     public <V> V adapt(Class<V> type, T object) {
         List<Function<T, ?>> adapters = registry.get(type);
         if (adapters != null) {
-            for (int i = adapters.size() - 1; i >= 0; i++) {
+            for (int i = adapters.size() - 1; i >= 0; i--) {
                 V adapted = (V)adapters.get(i).apply(object);
                 if (adapted != null)
                     return adapted;

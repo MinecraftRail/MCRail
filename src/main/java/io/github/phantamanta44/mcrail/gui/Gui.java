@@ -35,10 +35,10 @@ public abstract class Gui {
         this.slots = new GuiSlot[this.cont.getSize()];
         this.player = player;
         Rail.guiHandler().register(this);
-        Bukkit.getServer().getScheduler().runTaskLater(Rail.INSTANCE, () -> {
+        Bukkit.getServer().getScheduler().runTask(Rail.INSTANCE, () -> {
             init();
             player.openInventory(cont);
-        }, 1L);
+        });
     }
 
     public Inventory inventory() {

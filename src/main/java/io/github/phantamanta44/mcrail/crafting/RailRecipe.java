@@ -1,6 +1,6 @@
 package io.github.phantamanta44.mcrail.crafting;
 
-import org.bukkit.Bukkit;
+import io.github.phantamanta44.mcrail.util.ItemUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -10,48 +10,59 @@ import org.bukkit.material.MaterialData;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class RailRecipe {
 
-    final String[] lines;
-    final Map<Character, Predicate<ItemStack>> ingredients;
-    final ItemStack result;
-    int lineIndex;
+    private final String[] lines;
+    private final Map<Character, Predicate<ItemStack>> ingredients;
+    private int lineIndex, xDim, yDim;
+    Function<ItemStack[], ItemStack> result;
 
-    public RailRecipe(ItemStack result) {
+    public RailRecipe() {
         this.lines = new String[3];
         this.ingredients = new HashMap<>();
         this.ingredients.put(' ', s -> s.getType().equals(Material.AIR));
-        this.result = result;
-        this.lineIndex = 0;
+        this.lineIndex = this.xDim = this.yDim = 0;
+        this.result = null;
     }
 
     public RailRecipe line(String line) {
+        if (result != null)
+            throw new IllegalStateException("This recipe is already finished!");
         lines[lineIndex] = line;
         lineIndex++;
         return this;
     }
 
     public RailRecipe ingredient(char c, Predicate<ItemStack> ing) {
+        if (result != null)
+            throw new IllegalStateException("This recipe is already finished!");
         ingredients.put(c, ing);
         return this;
     }
 
     public RailRecipe ingredient(char c, Material ing) {
-        return ingredient(c, s -> s.getType().equals(ing));
+        return ing == Material.AIR
+                ? ingredient(c, ItemUtils::isNully)
+                : ingredient(c, s -> ItemUtils.isNotNully(s) && s.getType().equals(ing));
     }
 
     public RailRecipe ingredient(char c, MaterialData ing) {
-        return ingredient(c, s -> s.getData().equals(ing));
+        return ing.getItemType() == Material.AIR
+                ? ingredient(c, ItemUtils::isNully)
+                : ingredient(c, s -> ItemUtils.isNotNully(s) && s.getData().equals(ing));
     }
 
     public RailRecipe ingredient(char c, ItemStack ing) {
-        return ingredient(c, s -> s.isSimilar(ing));
+        return ingredient(c, s -> ItemUtils.isNotNully(s) && ing.isSimilar(s));
     }
 
     public RailRecipe ingredient(char c, String ing) {
         return ingredient(c, s -> {
+            if (ItemUtils.isNully(s))
+                return false;
             ItemMeta meta = s.getItemMeta();
             if (!meta.hasLore())
                 return false;
@@ -60,8 +71,47 @@ public class RailRecipe {
         });
     }
 
-    public void register() {
-        Bukkit.getServer().addRecipe(new ShapedRecipeDelegate(this));
+    public RailRecipe withResult(Function<ItemStack[], ItemStack> mapper) {
+        if (result != null)
+            throw new IllegalStateException("This recipe is already finished!");
+        xDim = lines[0].length();
+        while (yDim < lines.length && lines[yDim] != null)
+            yDim++;
+        if (xDim == 0 || yDim == 0)
+            throw new IllegalStateException("Invalid recipe!");
+        result = mapper;
+        return this;
+    }
+
+    public RailRecipe withResult(ItemStack stack) {
+        return withResult(mat -> stack.clone());
+    }
+
+    public Predicate<ItemStack> ingredientAt(int x, int y) {
+        if (x < 0 || x >= xDim || y < 0 || y >= yDim)
+            return ItemUtils::isNully;
+        return ingredients.getOrDefault(lines[y].charAt(x), ItemUtils::isNully);
+    }
+
+    public ItemStack[] matches(ItemStack[] mat) {
+        if (result == null)
+            throw new IllegalStateException("Recipe is not finished!");
+        for (int yOff = 0; yOff < 4 - yDim; yOff++) {
+            xLoop:
+            for (int xOff = 0; xOff < 4 - xDim; xOff++) {
+                for (int y = 0; y < 3; y++) {
+                    for (int x = 0; x < 3; x++) {
+                        if (!ingredientAt(x - xOff, y - yOff).test(mat[y * 3 + x]))
+                            continue xLoop;
+                    }
+                }
+                ItemStack[] match = new ItemStack[xDim * yDim];
+                for (int y = 0; y < yDim; y++)
+                    System.arraycopy(mat, (y + yOff) * 3 + xOff, match, y * xDim, xDim);
+                return match;
+            }
+        }
+        return null;
     }
 
 }

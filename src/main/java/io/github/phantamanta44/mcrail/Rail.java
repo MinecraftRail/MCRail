@@ -4,6 +4,7 @@ import io.github.phantamanta44.mcrail.adapter.AdapterRegistry;
 import io.github.phantamanta44.mcrail.command.CommandSign;
 import io.github.phantamanta44.mcrail.command.CommandSigns;
 import io.github.phantamanta44.mcrail.crafting.CraftingHandler;
+import io.github.phantamanta44.mcrail.crafting.RecipeManager;
 import io.github.phantamanta44.mcrail.fluid.FluidBucketAdapter;
 import io.github.phantamanta44.mcrail.fluid.FluidRegistry;
 import io.github.phantamanta44.mcrail.fluid.IFluidContainer;
@@ -33,6 +34,7 @@ public class Rail extends JavaPlugin {
     private AdapterRegistry<ItemStack> itemAdapterReg;
 
     private SignManager signMan;
+    private RecipeManager recipeMan;
     private WorldDataHandler wdh;
     private GuiHandler guiHandler;
 
@@ -45,6 +47,7 @@ public class Rail extends JavaPlugin {
         INSTANCE = this;
         tickHandlers = new LinkedList<>();
         signReg = new SignRegistry();
+        recipeMan = new RecipeManager();
         fluidReg = new FluidRegistry();
         blockAdapterReg = new AdapterRegistry<>();
         itemAdapterReg = new AdapterRegistry<>();
@@ -95,6 +98,10 @@ public class Rail extends JavaPlugin {
 
     public static SignManager signManager() {
         return INSTANCE.signMan;
+    }
+
+    public static RecipeManager recipes() {
+        return INSTANCE.recipeMan;
     }
 
     public static GuiHandler guiHandler() {

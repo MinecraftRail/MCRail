@@ -2,7 +2,7 @@ name: Rail
 version: ${project.version}
 description: Automation stuff.
 website: http://phanta.xyz
-main: io.github.phantamanta44.mcrail.RailMain
+main: io.github.phantamanta44.mcrail.Rail
 commands:
   rsigns:
     usage: "/rsigns"
