@@ -2,14 +2,14 @@ package io.github.phantamanta44.mcrail.model;
 
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
+import java.util.function.Predicate;
 
 public interface IItemProvider {
 
-    List<ItemStack> request(ItemStack filter, int amount);
+    ItemStack request(Predicate<ItemStack> filter, int amount);
 
-    boolean contains(ItemStack filter, int amount);
+    boolean contains(Predicate<ItemStack> filter, int amount);
 
-    int quantity(ItemStack filter);
+    int quantity(Predicate<ItemStack> filter);
 
 }
