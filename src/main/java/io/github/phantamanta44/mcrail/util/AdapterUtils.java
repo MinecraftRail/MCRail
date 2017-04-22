@@ -14,4 +14,12 @@ public class AdapterUtils {
         return Rail.blockAdapters().adapt(type, block);
     }
 
+    public static boolean instOf(Class<?> type, ItemStack stack) {
+        return adapt(type, stack) != null;
+    }
+
+    public static boolean instOf(Class<?> type, Block block) {
+        return adapt(type, block) != null;
+    }
+
 }
