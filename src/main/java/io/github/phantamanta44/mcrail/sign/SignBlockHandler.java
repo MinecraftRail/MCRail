@@ -20,29 +20,6 @@ import java.util.List;
 public class SignBlockHandler implements Listener {
 
     @EventHandler
-    public void onPlace(BlockPlaceEvent event) {
-        ItemStack stack = event.getItemInHand();
-        if (stack.getType() == Material.SIGN && stack.hasItemMeta()) {
-            ItemMeta meta = stack.getItemMeta();
-            if (meta.hasLore()) {
-                List<String> lore = meta.getLore();
-                String last = lore.get(lore.size() - 1);
-                if (last.startsWith(ChatColor.DARK_GRAY + "ID: ")) {
-                    String id = last.substring(4 + ChatColor.DARK_GRAY.toString().length());
-                    if (Rail.signRegistry().isValidId(id)) {
-                        Rail.signManager().register(id, event.getBlock());
-                        Bukkit.getServer().getScheduler().runTaskLater(
-                                Rail.INSTANCE, () -> event.getPlayer().closeInventory(), 1L);
-                    } else {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage(ChatColor.RED + "Not a valid sign!");
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler
     public void onSignEdit(SignChangeEvent event) {
         if (SignUtils.existsAt(event.getBlock()))
             event.setCancelled(true);

@@ -1,5 +1,7 @@
 package io.github.phantamanta44.mcrail.sign;
 
+import io.github.phantamanta44.mcrail.Rail;
+import io.github.phantamanta44.mcrail.item.SignEntityItem;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
@@ -21,6 +23,7 @@ public class SignRegistry {
         if (registry.containsKey(id))
             throw new IllegalArgumentException("Sign entity already exists: " + id);
         registry.put(id, provider);
+        Rail.itemRegistry().register(id, new SignEntityItem(id));
     }
 
     public boolean isValidId(String id) {

@@ -2,17 +2,12 @@ package io.github.phantamanta44.mcrail.command;
 
 import io.github.phantamanta44.mcrail.Rail;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collections;
-
-public class CommandSign implements CommandExecutor {
+public class CommandItem implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -23,10 +18,10 @@ public class CommandSign implements CommandExecutor {
             sender.sendMessage(ChatColor.RED + "No permission!");
             return true;
         } else if (args.length < 1) {
-            sender.sendMessage(ChatColor.RED + "Must provide a sign ID!");
+            sender.sendMessage(ChatColor.RED + "Must provide an item ID!");
             return true;
-        } else if (!Rail.signRegistry().isValidId(args[0])) {
-            sender.sendMessage(ChatColor.RED + "Invalid sign ID!");
+        } else if (!Rail.itemRegistry().exists(args[0])) {
+            sender.sendMessage(ChatColor.RED + "Invalid item ID!");
             return true;
         }
         int amount = 1;
@@ -38,12 +33,7 @@ public class CommandSign implements CommandExecutor {
                 return true;
             }
         }
-        ItemStack stack = new ItemStack(Material.SIGN, amount);
-        ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName("Rail Sign: " + args[0]);
-        meta.setLore(Collections.singletonList(ChatColor.DARK_GRAY + "ID: " + args[0]));
-        stack.setItemMeta(meta);
-        ((Player)sender).getInventory().addItem(stack);
+        ((Player)sender).getInventory().addItem(Rail.itemRegistry().create(args[0], amount));
         return true;
     }
 

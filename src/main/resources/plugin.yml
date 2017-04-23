@@ -4,14 +4,14 @@ description: Automation stuff.
 website: http://phanta.xyz
 main: io.github.phantamanta44.mcrail.Rail
 commands:
-  rsigns:
-    usage: "/rsigns"
-    description: Lists available sign IDs for Rail.
-  rsign:
-    usage: "/rsign <id> [amount]"
-    description: Spawns an amount of signs by ID.
+  ritems:
+    usage: "/ritems"
+    description: Lists available custom item IDs for Rail.
+  ritem:
+    usage: "/ritem <id> [amount]"
+    description: Spawns an amount of custom items by ID.
 permissions:
-  rail.signs:
-    description: "Allows the usage of /rsigns."
-  rail.sign:
-    description: "Allows the usage of /rsign."
+  rail.items:
+    description: "Allows the usage of /ritems."
+  rail.item:
+    description: "Allows the usage of /ritem."

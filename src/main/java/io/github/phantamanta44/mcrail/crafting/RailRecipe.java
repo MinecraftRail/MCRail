@@ -1,14 +1,12 @@
 package io.github.phantamanta44.mcrail.crafting;
 
+import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -46,13 +44,13 @@ public class RailRecipe {
     public RailRecipe ingredient(char c, Material ing) {
         return ing == Material.AIR
                 ? ingredient(c, ItemUtils::isNully)
-                : ingredient(c, s -> ItemUtils.isNotNully(s) && s.getType().equals(ing));
+                : ingredient(c, s -> ItemUtils.isNotNully(s) && s.getType().equals(ing) && !ItemUtils.isRailItem(s));
     }
 
     public RailRecipe ingredient(char c, MaterialData ing) {
         return ing.getItemType() == Material.AIR
                 ? ingredient(c, ItemUtils::isNully)
-                : ingredient(c, s -> ItemUtils.isNotNully(s) && s.getData().equals(ing));
+                : ingredient(c, s -> ItemUtils.isNotNully(s) && s.getData().equals(ing) && !ItemUtils.isRailItem(s));
     }
 
     public RailRecipe ingredient(char c, ItemStack ing) {
@@ -60,15 +58,7 @@ public class RailRecipe {
     }
 
     public RailRecipe ingredient(char c, String ing) {
-        return ingredient(c, s -> {
-            if (ItemUtils.isNully(s))
-                return false;
-            ItemMeta meta = s.getItemMeta();
-            if (!meta.hasLore())
-                return false;
-            List<String> lore = meta.getLore();
-            return lore.get(lore.size() - 1).startsWith(ChatColor.GRAY + "ID: ");
-        });
+        return ingredient(c, s -> ItemUtils.isNotNully(s) && ItemUtils.instOf(ing, s));
     }
 
     public RailRecipe withResult(Function<ItemStack[], ItemStack> mapper) {
@@ -85,6 +75,14 @@ public class RailRecipe {
 
     public RailRecipe withResult(ItemStack stack) {
         return withResult(mat -> stack.clone());
+    }
+
+    public RailRecipe withResult(String id, int amount) {
+        return withResult(mat -> Rail.itemRegistry().create(id, amount));
+    }
+
+    public RailRecipe withResult(String id) {
+        return withResult(id, 1);
     }
 
     public Predicate<ItemStack> ingredientAt(int x, int y) {

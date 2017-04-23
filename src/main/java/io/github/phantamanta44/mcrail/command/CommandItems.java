@@ -7,19 +7,20 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CommandSigns implements CommandExecutor {
+public class CommandItems implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player && !sender.hasPermission("rail.signs")) {
+        if (sender instanceof Player && !sender.hasPermission("rail.items")) {
             sender.sendMessage(ChatColor.RED + "No permission!");
             return true;
         }
         sender.sendMessage(new String[] {
-                "Valid Sign IDs:",
-                Rail.signRegistry().validIds().collect(Collectors.joining(", "))
+                "Valid Item IDs:",
+                Rail.itemRegistry().stream().map(Map.Entry::getKey).collect(Collectors.joining(", "))
         });
         return true;
     }

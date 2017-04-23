@@ -1,14 +1,16 @@
 package io.github.phantamanta44.mcrail;
 
 import io.github.phantamanta44.mcrail.adapter.AdapterRegistry;
-import io.github.phantamanta44.mcrail.command.CommandSign;
-import io.github.phantamanta44.mcrail.command.CommandSigns;
+import io.github.phantamanta44.mcrail.command.CommandItem;
+import io.github.phantamanta44.mcrail.command.CommandItems;
 import io.github.phantamanta44.mcrail.crafting.CraftingHandler;
 import io.github.phantamanta44.mcrail.crafting.RecipeManager;
 import io.github.phantamanta44.mcrail.fluid.FluidBucketAdapter;
 import io.github.phantamanta44.mcrail.fluid.FluidRegistry;
 import io.github.phantamanta44.mcrail.fluid.IFluidContainer;
 import io.github.phantamanta44.mcrail.gui.GuiHandler;
+import io.github.phantamanta44.mcrail.item.ItemHandler;
+import io.github.phantamanta44.mcrail.item.ItemRegistry;
 import io.github.phantamanta44.mcrail.sign.SignBlockHandler;
 import io.github.phantamanta44.mcrail.sign.SignManager;
 import io.github.phantamanta44.mcrail.sign.SignRegistry;
@@ -29,6 +31,7 @@ public class Rail extends JavaPlugin {
     public static Rail INSTANCE;
 
     private SignRegistry signReg;
+    private ItemRegistry itemReg;
     private FluidRegistry fluidReg;
     private AdapterRegistry<Block> blockAdapterReg;
     private AdapterRegistry<ItemStack> itemAdapterReg;
@@ -47,6 +50,7 @@ public class Rail extends JavaPlugin {
         INSTANCE = this;
         tickHandlers = new LinkedList<>();
         signReg = new SignRegistry();
+        itemReg = new ItemRegistry();
         recipeMan = new RecipeManager();
         fluidReg = new FluidRegistry();
         blockAdapterReg = new AdapterRegistry<>();
@@ -54,11 +58,12 @@ public class Rail extends JavaPlugin {
         itemAdapterReg.register(IFluidContainer.class, new FluidBucketAdapter());
         onTick(signMan = new SignManager());
         Bukkit.getServer().getPluginManager().registerEvents(new SignBlockHandler(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(new ItemHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(wdh = new WorldDataHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(guiHandler = new GuiHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CraftingHandler(), this);
-        Bukkit.getServer().getPluginCommand("rsigns").setExecutor(new CommandSigns());
-        Bukkit.getServer().getPluginCommand("rsign").setExecutor(new CommandSign());
+        Bukkit.getServer().getPluginCommand("ritems").setExecutor(new CommandItems());
+        Bukkit.getServer().getPluginCommand("ritem").setExecutor(new CommandItem());
         tick = 0L;
         tickTask = Bukkit.getServer().getScheduler().runTaskTimer(this, this::tick, 1L, 1L);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, wdh::saveAll);
@@ -82,6 +87,10 @@ public class Rail extends JavaPlugin {
 
     public static SignRegistry signRegistry() {
         return INSTANCE.signReg;
+    }
+
+    public static ItemRegistry itemRegistry() {
+        return INSTANCE.itemReg;
     }
 
     public static FluidRegistry fluidRegistry() {
