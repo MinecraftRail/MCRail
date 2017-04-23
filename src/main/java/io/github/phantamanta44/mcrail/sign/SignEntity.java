@@ -17,14 +17,16 @@ public abstract class SignEntity {
     private final Lines lines;
     private final SignDir dir;
     private final boolean isWallSign;
+    private final String id;
 
-    public SignEntity(Block block) {
-         this.pos = new BlockPos(block);
-         BlockState state = block.getState();
-         this.lines = new Lines((org.bukkit.block.Sign)state);
-         Sign data = (Sign)state.getData();
-         this.dir = new SignDir(data);
-         this.isWallSign = data.isWallSign();
+    public SignEntity(Block block, String id) {
+        this.pos = new BlockPos(block);
+        BlockState state = block.getState();
+        this.lines = new Lines((org.bukkit.block.Sign)state);
+        Sign data = (Sign)state.getData();
+        this.dir = new SignDir(data);
+        this.isWallSign = data.isWallSign();
+        this.id = id;
     }
 
     public BlockPos pos() {
@@ -49,6 +51,10 @@ public abstract class SignEntity {
 
     public boolean isWallSign() {
         return isWallSign;
+    }
+
+    public String id() {
+        return id;
     }
 
     public abstract void init();

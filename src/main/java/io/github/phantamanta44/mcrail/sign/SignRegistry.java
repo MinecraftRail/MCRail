@@ -18,21 +18,21 @@ public class SignRegistry {
         this.registry = new HashMap<>();
     }
 
-    public void register(String id, Function<Block, SignEntity> provider) {
+    public void register(String id, String name, Function<Block, SignEntity> provider) { // TODO Better way of setting item properties (e.g. name)
         id = id.toLowerCase();
         if (registry.containsKey(id))
             throw new IllegalArgumentException("Sign entity already exists: " + id);
         registry.put(id, provider);
-        Rail.itemRegistry().register(id, new SignEntityItem(id));
+        Rail.itemRegistry().register(id, new SignEntityItem(id, name));
     }
 
     public boolean isValidId(String id) {
         return registry.containsKey(id.toLowerCase());
     }
 
-    public SignEntity createEntity(String id, Block block) {
+    public SignEntity createEntity(String id, String name, Block block) {
         Sign sign = (Sign)block.getState();
-        sign.setLine(0, "[" + id + "]");
+        sign.setLine(0, name);
         sign.update();
         Function<Block, SignEntity> provider = registry.get(id);
         return provider != null ? provider.apply(block) : null;

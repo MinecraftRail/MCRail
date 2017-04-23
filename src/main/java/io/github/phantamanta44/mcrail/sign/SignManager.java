@@ -54,8 +54,8 @@ public class SignManager implements LongConsumer {
         return false;
     }
 
-    public void register(String id, Block block) {
-        SignEntity se = Rail.signRegistry().createEntity(id, block);
+    public void register(String id, String name, Block block) {
+        SignEntity se = Rail.signRegistry().createEntity(id, name, block);
         se.init();
         entities.put(new BlockPos(block), se);
     }
@@ -76,7 +76,7 @@ public class SignManager implements LongConsumer {
                     JsonObject dto2 = new JsonObject();
                     dto2.add("pos", e.getKey().serialize());
                     dto2.add("entity", e.getValue().serialize());
-                    String header = e.getValue().lines().header();
+                    String header = e.getValue().id();
                     dto2.addProperty("id", header.substring(1, header.length() - 1));
                     return dto2;
                 })

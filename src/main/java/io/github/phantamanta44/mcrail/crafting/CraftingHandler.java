@@ -27,7 +27,7 @@ public class CraftingHandler implements Listener {
     public void onClick(InventoryClickEvent event) {
         if (event.getView().getTopInventory().getType() == InventoryType.CRAFTING
                 || event.getView().getTopInventory().getType() == InventoryType.WORKBENCH) {
-            if (event.getSlotType() == InventoryType.SlotType.RESULT && CRAFT_ACTIONS.contains(event.getAction()))
+            if (event.getSlotType() == InventoryType.SlotType.RESULT && CRAFT_ACTIONS.contains(event.getAction())) // FIXME this is BROKEN
                 Bukkit.getServer().getScheduler().runTask(Rail.INSTANCE, () -> {
                     CraftingInventory inv = (CraftingInventory)event.getView().getTopInventory();
                     ItemStack[] mat = inv.getMatrix();
