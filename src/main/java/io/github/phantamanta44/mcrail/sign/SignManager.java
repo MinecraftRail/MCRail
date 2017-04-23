@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.LongConsumer;
 
@@ -43,11 +44,12 @@ public class SignManager implements LongConsumer {
     public boolean breakCheck(Block block) {
         SignEntity se = entities.remove(new BlockPos(block));
         if (se != null) {
-            block.setType(Material.AIR);
             se.destroy();
-            Collection<ItemStack> drops = block.getDrops();
+            Collection<ItemStack> drops = new LinkedList<>();
+            drops.add(Rail.itemRegistry().create(se.id()));
             se.modifyDrops(drops);
             Location loc = block.getLocation().add(0.5D, 0.5D, 0.5D);
+            block.setType(Material.AIR);
             drops.forEach(d -> block.getWorld().dropItemNaturally(loc, d));
             return true;
         }
