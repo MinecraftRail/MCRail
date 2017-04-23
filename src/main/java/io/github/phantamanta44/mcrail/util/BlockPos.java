@@ -54,6 +54,10 @@ public class BlockPos {
         return z;
     }
 
+    public BlockPos add(int dX, int dY, int dZ) {
+        return new BlockPos(world, x + dX, y + dY, z + dZ);
+    }
+
     public JsonObject serialize() {
         JsonObject dto = new JsonObject();
         dto.addProperty("world", world);
