@@ -78,8 +78,7 @@ public class SignManager implements LongConsumer {
                     JsonObject dto2 = new JsonObject();
                     dto2.add("pos", e.getKey().serialize());
                     dto2.add("entity", e.getValue().serialize());
-                    String header = e.getValue().id();
-                    dto2.addProperty("id", header.substring(1, header.length() - 1));
+                    dto2.addProperty("id", e.getValue().id());
                     return dto2;
                 })
                 .forEach(dto::add);
