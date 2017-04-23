@@ -17,6 +17,10 @@ public class ItemUtils {
         return stack != null && stack.getType() != Material.AIR && stack.getAmount() > 0;
     }
 
+    public static boolean isFull(ItemStack stack) {
+        return stack.getAmount() >= stack.getMaxStackSize();
+    }
+
     public static boolean instOf(String id, ItemStack stack) {
         IItemBehaviour item = Rail.itemRegistry().get(id);
         return item != null
