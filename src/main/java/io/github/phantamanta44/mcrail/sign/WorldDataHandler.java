@@ -20,6 +20,10 @@ public class WorldDataHandler implements Listener {
     }
 
     public void saveAll() {
+        Bukkit.getServer().getWorlds().forEach(Rail.signManager()::save);
+    }
+
+    public void loadAll() {
         Bukkit.getServer().getWorlds().forEach(Rail.signManager()::load);
     }
 

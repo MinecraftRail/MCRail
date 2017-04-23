@@ -38,7 +38,7 @@ public class JsonUtils {
 
     @SuppressWarnings("unchecked")
     public static ItemStack deserItemStack(JsonElement json) {
-        if (json.isJsonNull())
+        if (json == null || json.isJsonNull())
             return null;
         JsonObject dto = json.getAsJsonObject();
         ItemStack stack = new ItemStack(

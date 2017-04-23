@@ -69,6 +69,7 @@ public class SignManager implements LongConsumer {
     }
 
     public void save(World world) {
+        Rail.INSTANCE.getLogger().info("Saving world data: " + world.getName());
         File file = new File(Rail.INSTANCE.getDataFolder(), "world_" + world.getName() + ".json");
         file.getParentFile().mkdirs();
         JsonArray dto = new JsonArray();
@@ -91,6 +92,7 @@ public class SignManager implements LongConsumer {
     }
 
     public void load(World world) {
+        Rail.INSTANCE.getLogger().info("Loading world data: " + world.getName());
         entities.entrySet().removeIf(e -> e.getKey().world().equals(world));
         File file = new File(Rail.INSTANCE.getDataFolder(), "world_" + world.getName() + ".json");
         if (file.exists()) {
@@ -100,6 +102,7 @@ public class SignManager implements LongConsumer {
                     JsonObject dto2 = e.getAsJsonObject();
                     BlockPos pos = BlockPos.deserialize(dto2.get("pos").getAsJsonObject());
                     SignEntity se = Rail.signRegistry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
+                    se.deserialize(dto2.get("entity").getAsJsonObject());
                     entities.put(pos, se);
                 });
             } catch (IOException e) {

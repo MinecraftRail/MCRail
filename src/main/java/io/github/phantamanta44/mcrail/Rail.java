@@ -66,7 +66,7 @@ public class Rail extends JavaPlugin {
         Bukkit.getServer().getPluginCommand("ritem").setExecutor(new CommandItem());
         tick = 0L;
         tickTask = Bukkit.getServer().getScheduler().runTaskTimer(this, this::tick, 1L, 1L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, wdh::saveAll);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, wdh::loadAll);
     }
 
     @Override
