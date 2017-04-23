@@ -5,7 +5,7 @@ website: http://phanta.xyz
 main: io.github.phantamanta44.mcrail.Rail
 commands:
   ritems:
-    usage: "/ritems"
+    usage: "/ritems [page|regex]"
     description: Lists available custom item IDs for Rail.
   ritem:
     usage: "/ritem <id> [amount]"
