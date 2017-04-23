@@ -19,8 +19,8 @@ public class CommandItems implements CommandExecutor {
             return true;
         }
         sender.sendMessage(new String[] {
-                "Valid Item IDs:",
-                Rail.itemRegistry().stream().map(Map.Entry::getKey).collect(Collectors.joining(", "))
+                ChatColor.GRAY + "Valid Item IDs:",
+                Rail.itemRegistry().stream().map(Map.Entry::getKey).collect(Collectors.joining("\n"))
         });
         return true;
     }
