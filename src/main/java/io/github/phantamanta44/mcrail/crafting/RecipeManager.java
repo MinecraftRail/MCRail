@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class RecipeManager {
 
-    private final Collection<RailRecipe> recipeReg;
+    private final Collection<IGridRecipe> recipeReg;
     private final Collection<RailSmeltRecipe> smeltingReg;
 
     public RecipeManager() {
@@ -16,7 +16,7 @@ public class RecipeManager {
         this.smeltingReg = new HashSet<>();
     }
 
-    public void register(RailRecipe recipe) {
+    public void register(IGridRecipe recipe) {
         recipeReg.add(recipe);
     }
 
@@ -28,7 +28,7 @@ public class RecipeManager {
         return recipeReg.stream()
                 .map(r -> {
                     ItemStack[] match = r.matches(mat);
-                    return match == null ? null : r.result.apply(match);
+                    return match == null ? null : r.mapToResult(match);
                 })
                 .filter(Objects::nonNull)
                 .findAny().orElse(null);

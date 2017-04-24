@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class RailRecipe {
+public class RailRecipe implements IGridRecipe {
 
     private final String[] lines;
     private final Map<Character, Predicate<ItemStack>> ingredients;
     private int lineIndex, xDim, yDim;
-    Function<ItemStack[], ItemStack> result;
+    private Function<ItemStack[], ItemStack> result;
 
     public RailRecipe() {
         this.lines = new String[3];
@@ -91,6 +91,12 @@ public class RailRecipe {
         return ingredients.getOrDefault(lines[y].charAt(x), ItemUtils::isNully);
     }
 
+    @Override
+    public ItemStack mapToResult(ItemStack[] mat) {
+        return result.apply(mat);
+    }
+
+    @Override
     public ItemStack[] matches(ItemStack[] mat) {
         if (result == null)
             throw new IllegalStateException("Recipe is not finished!");

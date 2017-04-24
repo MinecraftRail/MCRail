@@ -90,11 +90,11 @@ public class CraftingHandler implements Listener {
         }
     }
 
-    private void checkCraftingLater(CraftingInventory inv, HumanEntity pl) {
+    private static void checkCraftingLater(CraftingInventory inv, HumanEntity pl) {
         Bukkit.getServer().getScheduler().runTask(Rail.INSTANCE, () -> checkCrafting(inv, pl));
     }
 
-    private void checkCrafting(CraftingInventory inv, HumanEntity pl) {
+    private static void checkCrafting(CraftingInventory inv, HumanEntity pl) {
         ItemStack[] mat = new ItemStack[9];
         if (inv.getMatrix().length == 10) {
             System.arraycopy(inv.getMatrix(), 0, mat, 0, 9);

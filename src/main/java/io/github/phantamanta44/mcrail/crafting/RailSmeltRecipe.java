@@ -82,6 +82,8 @@ public class RailSmeltRecipe {
         return withOutput(id, 1);
     }
 
-    // TODO some kind of matches(ItemStack input) function
+    public boolean matches(ItemStack input) {
+        return this.input.test(input);
+    }
     
 }
