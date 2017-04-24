@@ -8,18 +8,24 @@ import java.util.Objects;
 
 public class RecipeManager {
 
-    private final Collection<RailRecipe> registry;
+    private final Collection<RailRecipe> recipeReg;
+    private final Collection<RailSmeltRecipe> smeltingReg;
 
     public RecipeManager() {
-        this.registry = new HashSet<>();
+        this.recipeReg = new HashSet<>();
+        this.smeltingReg = new HashSet<>();
     }
 
     public void register(RailRecipe recipe) {
-        registry.add(recipe);
+        recipeReg.add(recipe);
+    }
+
+    public void register(RailSmeltRecipe recipe) {
+        smeltingReg.add(recipe);
     }
 
     public ItemStack recipeCheck(ItemStack[] mat) {
-        return registry.stream()
+        return recipeReg.stream()
                 .map(r -> {
                     ItemStack[] match = r.matches(mat);
                     return match == null ? null : r.result.apply(match);
@@ -27,5 +33,7 @@ public class RecipeManager {
                 .filter(Objects::nonNull)
                 .findAny().orElse(null);
     }
+
+    // TODO Smelting variant of #recipeCheck(ItemStack)
 
 }
