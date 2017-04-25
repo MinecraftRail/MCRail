@@ -22,6 +22,7 @@ public class RecipeManager {
 
     public void register(RailSmeltRecipe recipe) {
         smeltingReg.add(recipe);
+        recipe.registerBukkit();
     }
 
     public ItemStack recipeCheck(ItemStack[] mat) {
@@ -34,6 +35,10 @@ public class RecipeManager {
                 .findAny().orElse(null);
     }
 
-    // TODO Smelting variant of #recipeCheck(ItemStack)
+    public RailSmeltRecipe getSmelting(ItemStack input) {
+        return smeltingReg.stream()
+                .filter(r -> r.matches(input))
+                .findAny().orElse(null);
+    }
 
 }

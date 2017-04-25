@@ -91,7 +91,7 @@ public class CraftingHandler implements Listener {
     }
 
     private static void checkCraftingLater(CraftingInventory inv, HumanEntity pl) {
-        Bukkit.getServer().getScheduler().runTask(Rail.INSTANCE, () -> checkCrafting(inv, pl));
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> checkCrafting(inv, pl));
     }
 
     private static void checkCrafting(CraftingInventory inv, HumanEntity pl) {

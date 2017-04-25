@@ -35,7 +35,7 @@ public abstract class Gui {
         this.slots = new GuiSlot[this.cont.getSize()];
         this.player = player;
         Rail.guiHandler().register(this);
-        Bukkit.getServer().getScheduler().runTask(Rail.INSTANCE, () -> {
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
             init();
             player.openInventory(cont);
         });

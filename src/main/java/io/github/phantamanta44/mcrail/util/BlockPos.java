@@ -42,6 +42,13 @@ public class BlockPos {
         return world != null ? world.getBlockAt(x, y, z) : null;
     }
 
+    public boolean isAt(Block block) {
+        return block.getWorld().getName().equals(world)
+                && block.getX() == x
+                && block.getY() == y
+                && block.getZ() == z;
+    }
+
     public int x() {
         return x;
     }

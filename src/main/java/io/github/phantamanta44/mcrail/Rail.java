@@ -4,6 +4,7 @@ import io.github.phantamanta44.mcrail.adapter.AdapterRegistry;
 import io.github.phantamanta44.mcrail.command.CommandItem;
 import io.github.phantamanta44.mcrail.command.CommandItems;
 import io.github.phantamanta44.mcrail.crafting.CraftingHandler;
+import io.github.phantamanta44.mcrail.crafting.RailSmeltRecipe;
 import io.github.phantamanta44.mcrail.crafting.RecipeManager;
 import io.github.phantamanta44.mcrail.crafting.SmeltingHandler;
 import io.github.phantamanta44.mcrail.fluid.FluidBucketAdapter;
@@ -17,6 +18,7 @@ import io.github.phantamanta44.mcrail.sign.SignManager;
 import io.github.phantamanta44.mcrail.sign.SignRegistry;
 import io.github.phantamanta44.mcrail.sign.WorldDataHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
@@ -53,6 +55,7 @@ public class Rail extends JavaPlugin {
         signReg = new SignRegistry();
         itemReg = new ItemRegistry();
         recipeMan = new RecipeManager();
+        recipeMan.register(new RailSmeltRecipe().withInput(Material.ICE).withOutput(new ItemStack(Material.SNOW_BALL))); // FIXME Remove test code
         fluidReg = new FluidRegistry();
         blockAdapterReg = new AdapterRegistry<>();
         itemAdapterReg = new AdapterRegistry<>();
