@@ -20,6 +20,7 @@ import java.util.stream.Collector;
 public class JsonUtils {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    public static final Gson GSONC = new GsonBuilder().create();
     public static final JsonParser JSONP = new JsonParser();
 
     public static JsonElement serItemStack(ItemStack stack) {

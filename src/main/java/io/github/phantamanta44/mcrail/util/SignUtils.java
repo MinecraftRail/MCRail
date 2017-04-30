@@ -36,4 +36,16 @@ public class SignUtils {
                 .filter(Objects::nonNull);
     }
 
+    public static String formatName(String name) {
+        if (name.length() < 1)
+            return name;
+        int[] charArr = name.chars().map(c -> c == '_' ? ' ' : Character.toLowerCase(c)).toArray();
+        charArr[0] = Character.toUpperCase(charArr[0]);
+        for (int i = 0; i < charArr.length - 1; i++) {
+            if (!Character.isAlphabetic(charArr[i]))
+                charArr[i + 1] = Character.toUpperCase(charArr[i + 1]);
+        }
+        return new String(charArr, 0, charArr.length);
+    }
+
 }
