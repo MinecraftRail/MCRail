@@ -82,6 +82,8 @@ public class RailShapelessRecipe implements IGridRecipe {
     }
     
     private boolean matches(Collection<ItemStack> avail, int index) {
+        if (index >= ingredients.size())
+            return avail.isEmpty();
         List<ItemStack> matches = avail.stream().filter(ingredients.get(index)).collect(Collectors.toList());
         for (ItemStack match : matches) {
             avail.remove(match);
