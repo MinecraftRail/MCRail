@@ -9,14 +9,14 @@ import org.bukkit.material.MaterialData;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.Optional;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class RailShapelessRecipe implements IGridRecipe {
 
-    private final Collection<Predicate<ItemStack>> ingredients;
+    private final List<Predicate<ItemStack>> ingredients;
     private Function<Collection<ItemStack>, ItemStack> result;
     
     public RailShapelessRecipe() {
