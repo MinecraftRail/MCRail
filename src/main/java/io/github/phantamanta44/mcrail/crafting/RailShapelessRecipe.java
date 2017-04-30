@@ -77,14 +77,20 @@ public class RailShapelessRecipe implements IGridRecipe {
 
     @Override
     public ItemStack[] matches(ItemStack[] mat) {
-        Collection<ItemStack> input = Arrays.stream(mat).filter(ItemUtils::isNotNully).collect(Collectors.toList());
-        for (Predicate<ItemStack> ing : ingredients) {
-            Optional<ItemStack> stackOpt = input.stream().filter(ing).findAny();
-            if (!stackOpt.isPresent())
-                return null;
-            input.remove(stackOpt.get());
+        Collection<ItemStack> avail = Arrays.stream(mat).filter(ItemUtils::isNotNully).collect(Collectors.toList());
+        return matches(avail, 0) ? avail.toArray(new ItemStack[avail.size()]) : null;
+    }
+    
+    private boolean matches(Collection<ItemStack> avail, int index) {
+        List<ItemStack> matches = avail.stream().filter(ingredients.get(index)).collect(Collectors.toList());
+        for (ItemStack match : matches) {
+            avail.remove(match);
+            boolean restWorks = matches(avail, index + 1);
+            avail.add(match);
+            if (restWorks)
+                return true;
         }
-        return input.isEmpty() ? mat : null;
+        return false;
     }
     
 }
