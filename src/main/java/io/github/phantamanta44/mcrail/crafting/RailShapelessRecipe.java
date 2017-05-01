@@ -34,21 +34,21 @@ public class RailShapelessRecipe implements IGridRecipe {
     public RailShapelessRecipe ingredient(Material ing) {
         return ing == Material.AIR
                 ? ingredient(ItemUtils::isNully)
-                : ingredient(s -> ItemUtils.isNotNully(s) && s.getType().equals(ing) && !ItemUtils.isRailItem(s));
+                : ingredient(ItemUtils.matching(ing));
     }
 
     public RailShapelessRecipe ingredient(MaterialData ing) {
         return ing.getItemType() == Material.AIR
                 ? ingredient(ItemUtils::isNully)
-                : ingredient(s -> ItemUtils.isNotNully(s) && s.getData().equals(ing) && !ItemUtils.isRailItem(s));
+                : ingredient(ItemUtils.matching(ing));
     }
 
     public RailShapelessRecipe ingredient(ItemStack ing) {
-        return ingredient(s -> ItemUtils.isNotNully(s) && ing.isSimilar(s));
+        return ingredient(ItemUtils.matching(ing));
     }
 
     public RailShapelessRecipe ingredient(String ing) {
-        return ingredient(s -> ItemUtils.isNotNully(s) && ItemUtils.instOf(ing, s));
+        return ingredient(ItemUtils.matching(ing));
     }
 
     public RailShapelessRecipe withOutput(Function<Collection<ItemStack>, ItemStack> mapper) {

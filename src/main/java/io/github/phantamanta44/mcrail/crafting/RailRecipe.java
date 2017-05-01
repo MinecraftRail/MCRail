@@ -44,21 +44,21 @@ public class RailRecipe implements IGridRecipe {
     public RailRecipe ingredient(char c, Material ing) {
         return ing == Material.AIR
                 ? ingredient(c, ItemUtils::isNully)
-                : ingredient(c, s -> ItemUtils.isNotNully(s) && s.getType().equals(ing) && !ItemUtils.isRailItem(s));
+                : ingredient(c, ItemUtils.matching(ing));
     }
 
     public RailRecipe ingredient(char c, MaterialData ing) {
         return ing.getItemType() == Material.AIR
                 ? ingredient(c, ItemUtils::isNully)
-                : ingredient(c, s -> ItemUtils.isNotNully(s) && s.getData().equals(ing) && !ItemUtils.isRailItem(s));
+                : ingredient(c, ItemUtils.matching(ing));
     }
 
     public RailRecipe ingredient(char c, ItemStack ing) {
-        return ingredient(c, s -> ItemUtils.isNotNully(s) && ing.isSimilar(s));
+        return ingredient(c, ItemUtils.matching(ing));
     }
 
     public RailRecipe ingredient(char c, String ing) {
-        return ingredient(c, s -> ItemUtils.isNotNully(s) && ItemUtils.instOf(ing, s));
+        return ingredient(c, ItemUtils.matching(ing));
     }
 
     public RailRecipe withResult(Function<ItemStack[], ItemStack> mapper) {

@@ -51,22 +51,21 @@ public class RailSmeltRecipe {
     public RailSmeltRecipe withInput(Material ing) {
         return ing == Material.AIR
                 ? withInput(ItemUtils::isNully, ing)
-                : withInput(s -> ItemUtils.isNotNully(s) && s.getType().equals(ing) && !ItemUtils.isRailItem(s), ing);
+                : withInput(ItemUtils.matching(ing), ing);
     }
 
     public RailSmeltRecipe withInput(MaterialData ing) {
         return ing.getItemType() == Material.AIR
                 ? withInput(ItemUtils::isNully, ing)
-                : withInput(s -> ItemUtils.isNotNully(s) && s.getData().equals(ing) && !ItemUtils.isRailItem(s), ing);
+                : withInput(ItemUtils.matching(ing), ing);
     }
 
     public RailSmeltRecipe withInput(ItemStack ing) {
-        return withInput(s -> ItemUtils.isNotNully(s) && ing.isSimilar(s), ing.getType());
+        return withInput(ItemUtils.matching(ing), ing.getType());
     }
 
     public RailSmeltRecipe withInput(String ing) {
-        return withInput(s -> ItemUtils.isNotNully(s) && ItemUtils.instOf(ing, s),
-                Rail.itemRegistry().get(ing).material());
+        return withInput(ItemUtils.matching(ing), Rail.itemRegistry().get(ing).material());
     }
 
     public RailSmeltRecipe withOutput(Function<ItemStack, ItemStack> mapper) {

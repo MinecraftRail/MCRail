@@ -4,8 +4,10 @@ import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.item.IItemBehaviour;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 public class ItemUtils {
 
@@ -35,6 +37,22 @@ public class ItemUtils {
     public static String lastLoreLine(ItemStack stack) {
         List<String> lore = stack.getItemMeta().getLore();
         return lore != null ? lore.get(lore.size() - 1) : null;
+    }
+    
+    public static Predicate<ItemStack> matching(Material material) {
+        return s -> isNotNully(s) && s.getType().equals(material) && !isRailItem(s);
+    }
+    
+    public static Predicate<ItemStack> matching(MaterialData data) {
+        return s -> isNotNully(s) && s.getData().equals(data) && !isRailItem(s);
+    }
+    
+    public static Predicate<ItemStack> matching(ItemStack stack) {
+        return s -> isNotNully(s) && stack.isSimilar(s);
+    }
+    
+    public static Predicate<ItemStack> matching(String id) {
+        return s -> isNotNully(s) && instOf(id, s);
     }
 
 }

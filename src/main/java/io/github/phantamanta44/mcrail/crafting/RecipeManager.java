@@ -34,11 +34,11 @@ public class RecipeManager {
     }
 
     public void registerFurnaceFuel(Material fuel, int ticks) {
-        registerFurnaceFuel(s -> s.getType().equals(fuel) && !ItemUtils.isRailItem(s), ticks);
+        registerFurnaceFuel(ItemUtils.matching(fuel), ticks);
     }
 
     public void registerFurnaceFuel(MaterialData fuel, int ticks) {
-        registerFurnaceFuel(s -> s.getData().equals(fuel) && !ItemUtils.isRailItem(s), ticks);
+        registerFurnaceFuel(ItemUtils.matching(fuel), ticks);
     }
 
     public void registerFurnaceFuel(ItemStack fuel, int ticks) {
@@ -46,7 +46,7 @@ public class RecipeManager {
     }
 
     public void registerFurnaceFuel(String id, int ticks) {
-        registerFurnaceFuel(s -> ItemUtils.instOf(id, s), ticks);
+        registerFurnaceFuel(ItemUtils.matching(id), ticks);
     }
 
     public ItemStack recipeCheck(ItemStack[] mat) {
