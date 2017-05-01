@@ -1,6 +1,8 @@
 package io.github.phantamanta44.mcrail.crafting;
 
 import io.github.phantamanta44.mcrail.Rail;
+import io.github.phantamanta44.mcrail.model.IContainerItem;
+import io.github.phantamanta44.mcrail.util.AdapterUtils;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
 import io.github.phantamanta44.mcrail.util.JsonUtils;
 import io.github.phantamanta44.mcrail.util.SignUtils;
@@ -106,7 +108,20 @@ public class SmeltingHandler implements Listener {
 
     private void checkFurnace(FurnaceInventory inv) {
         if (ItemUtils.isNotNully(inv.getSmelting()) && isValid(inv.getSmelting())) {
-            // TODO Custom fuel behaviour
+            if (ItemUtils.isNotNully(inv.getFuel())) {
+                int burnTime = Rail.recipes().getBurnTime(inv.getFuel());
+                if (burnTime > 0) {
+                    IContainerItem containerItem = AdapterUtils.adapt(IContainerItem.class, inv.getFuel());
+                    if (containerItem != null) {
+                        inv.setFuel(containerItem.getContainer());
+                    } else {
+                        if (inv.getFuel().getAmount() > 1)
+                            inv.getFuel().setAmount(inv.getFuel().getAmount() - 1);
+                        else
+                            inv.setFuel(null);
+                    }
+                }
+            }
         }
     }
 

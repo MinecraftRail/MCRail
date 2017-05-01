@@ -12,6 +12,8 @@ import io.github.phantamanta44.mcrail.fluid.IFluidContainer;
 import io.github.phantamanta44.mcrail.gui.GuiHandler;
 import io.github.phantamanta44.mcrail.item.ItemHandler;
 import io.github.phantamanta44.mcrail.item.ItemRegistry;
+import io.github.phantamanta44.mcrail.item.VanillaContainerItemAdapter;
+import io.github.phantamanta44.mcrail.model.IContainerItem;
 import io.github.phantamanta44.mcrail.sign.SignBlockHandler;
 import io.github.phantamanta44.mcrail.sign.SignManager;
 import io.github.phantamanta44.mcrail.sign.SignRegistry;
@@ -57,6 +59,7 @@ public class Rail extends JavaPlugin {
         blockAdapterReg = new AdapterRegistry<>();
         itemAdapterReg = new AdapterRegistry<>();
         itemAdapterReg.register(IFluidContainer.class, new FluidBucketAdapter());
+        itemAdapterReg.register(IContainerItem.class, new VanillaContainerItemAdapter());
         onTick(signMan = new SignManager());
         Bukkit.getServer().getPluginManager().registerEvents(new SignBlockHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new ItemHandler(), this);
