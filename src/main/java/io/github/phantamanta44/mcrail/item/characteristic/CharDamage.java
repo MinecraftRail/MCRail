@@ -20,4 +20,8 @@ public class CharDamage implements IItemCharacteristic {
         return stack.getDurability() == value;
     }
 
+    public short value() {
+        return value;
+    }
+
 }

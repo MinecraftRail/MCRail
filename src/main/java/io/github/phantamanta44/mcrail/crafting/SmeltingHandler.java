@@ -66,6 +66,7 @@ public class SmeltingHandler implements Listener {
                 placeholderCheck(() -> inv[index], stack -> inv[index] = stack);
             }
             inventory.setContents(inv);
+            player.updateInventory();
         });
     }
 
@@ -83,13 +84,14 @@ public class SmeltingHandler implements Listener {
 
     @EventHandler
     public void onLight(FurnaceBurnEvent event) {
-        if (!isValid(((Furnace)event.getBlock().getState()).getInventory().getSmelting()))
+        FurnaceInventory inv = ((Furnace)event.getBlock().getState()).getInventory();
+        if (!canBurn(inv.getSmelting(), inv))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onCook(FurnaceSmeltEvent event) {
-        if (!isValid(event.getSource())) {
+        if (!canBurn(event.getSource(), ((Furnace)event.getBlock().getState()).getInventory())) {
             event.setCancelled(true);
         } else {
             RailSmeltRecipe recipe = Rail.recipes().getSmelting(event.getSource());
@@ -107,7 +109,7 @@ public class SmeltingHandler implements Listener {
     }
 
     private void checkFurnace(FurnaceInventory inv) {
-        if (ItemUtils.isNotNully(inv.getSmelting()) && isValid(inv.getSmelting())) {
+        if (ItemUtils.isNotNully(inv.getSmelting()) && canBurn(inv.getSmelting(), inv)) {
             if (ItemUtils.isNotNully(inv.getFuel())) {
                 int burnTime = Rail.recipes().getBurnTime(inv.getFuel());
                 if (burnTime > 0) {
@@ -124,6 +126,21 @@ public class SmeltingHandler implements Listener {
             }
         }
     }
+    
+    private boolean canBurn(ItemStack stack, FurnaceInventory inv) {
+        if (!isValid(stack))
+            return false;
+        if (ItemUtils.isNully(inv.getResult()))
+            return true;
+        RailSmeltRecipe recipe = Rail.recipes().getSmelting(stack);
+        if (recipe == null)
+            return inv.getResult().isSimilar(bukkitRecipeFor(inv.getSmelting()).getResult());
+        if (!inv.getResult().hasItemMeta())
+            return false;
+        ItemMeta meta = inv.getResult().getItemMeta();
+        return meta.hasDisplayName() && meta.getDisplayName().equals(PLACEHOLDER) && meta.hasLore()
+                && Rail.recipes().getSmelting(stack).mapToResult(stack).isSimilar(fromPlaceholder(meta.getLore()));
+    }
 
     private static boolean isValid(ItemStack stack) {
         if (Rail.recipes().getSmelting(stack) != null)
@@ -135,6 +152,16 @@ public class SmeltingHandler implements Listener {
                 return true;
         }
         return false;
+    }
+
+    private static FurnaceRecipe bukkitRecipeFor(ItemStack stack) {
+        Iterator<Recipe> iter = Bukkit.getServer().recipeIterator();
+        while (iter.hasNext()) {
+            Recipe recipe = iter.next();
+            if (recipe instanceof FurnaceRecipe && ((FurnaceRecipe)recipe).getInput().isSimilar(stack))
+                return (FurnaceRecipe)recipe;
+        }
+        return null;
     }
 
     private static ItemStack fromPlaceholder(List<String> meta) {

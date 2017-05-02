@@ -1,6 +1,8 @@
 package io.github.phantamanta44.mcrail.crafting;
 
 import io.github.phantamanta44.mcrail.Rail;
+import io.github.phantamanta44.mcrail.item.IItemBehaviour;
+import io.github.phantamanta44.mcrail.item.characteristic.CharDamage;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -65,7 +67,14 @@ public class RailSmeltRecipe {
     }
 
     public RailSmeltRecipe withInput(String ing) {
-        return withInput(ItemUtils.matching(ing), Rail.itemRegistry().get(ing).material());
+        IItemBehaviour item = Rail.itemRegistry().get(ing);
+        return item.characteristics().stream()
+                .filter(c -> c instanceof CharDamage)
+                .findAny()
+                .map(c -> withInput(
+                        ItemUtils.matching(ing),
+                        new MaterialData(item.material(), (byte)((CharDamage)c).value())))
+                .orElseGet(() -> withInput(ItemUtils.matching(ing), item.material()));
     }
 
     public RailSmeltRecipe withOutput(Function<ItemStack, ItemStack> mapper) {
@@ -88,7 +97,9 @@ public class RailSmeltRecipe {
     }
 
     public boolean matches(ItemStack input) {
-        return input.getType().equals(inputType) && this.input.test(input);
+        return (!(inputType instanceof Material) || input.getType().equals(inputType))
+                && (!(inputType instanceof MaterialData) || input.getData().equals(inputType))
+                && this.input.test(input);
     }
 
     public ItemStack mapToResult(ItemStack input) {
