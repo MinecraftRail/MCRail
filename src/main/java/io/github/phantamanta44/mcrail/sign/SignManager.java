@@ -99,11 +99,16 @@ public class SignManager implements LongConsumer {
             try (Reader in = new BufferedReader(new FileReader(file))) {
                 JsonArray dto = JsonUtils.JSONP.parse(in).getAsJsonArray();
                 dto.forEach(e -> {
-                    JsonObject dto2 = e.getAsJsonObject();
-                    BlockPos pos = BlockPos.deserialize(dto2.get("pos").getAsJsonObject());
-                    SignEntity se = Rail.signRegistry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
-                    se.deserialize(dto2.get("entity").getAsJsonObject());
-                    entities.put(pos, se);
+                    try {
+                        JsonObject dto2 = e.getAsJsonObject();
+                        BlockPos pos = BlockPos.deserialize(dto2.get("pos").getAsJsonObject());
+                        SignEntity se = Rail.signRegistry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
+                        se.deserialize(dto2.get("entity").getAsJsonObject());
+                        entities.put(pos, se);
+                    } catch (Exception e2) {
+                        Rail.INSTANCE.getLogger().severe("Sign entity failed to load");
+                        e2.printStackTrace();
+                    }
                 });
             } catch (IOException e) {
                 Rail.INSTANCE.getLogger().severe("Failed to load sign entity data in world: " + world.getName());
