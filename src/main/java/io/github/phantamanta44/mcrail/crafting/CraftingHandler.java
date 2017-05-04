@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 
 public class CraftingHandler implements Listener {
@@ -39,43 +40,48 @@ public class CraftingHandler implements Listener {
                                 && ItemUtils.isNotNully(onCursor)
                                 && ItemUtils.isFull(onCursor))) {
                     CraftingInventory inv = (CraftingInventory)event.getView().getTopInventory();
-                    if (ItemUtils.isNotNully(inv.getResult()) && inv.getRecipe() == null) {
-                        ItemStack expectedResult = inv.getResult().clone();
-                        do {
-                            ItemStack[] mat = inv.getMatrix();
-                            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-                                event.getWhoClicked().getInventory().addItem(inv.getResult());
-                            } else if (PICKUP_ACTIONS.contains(event.getAction())) {
-                                if (ItemUtils.isNully(onCursor))
-                                    event.getWhoClicked().setItemOnCursor(inv.getResult());
-                                else
-                                    onCursor.setAmount(onCursor.getAmount() + 1);
-                            } else if (HOTBAR_ACTIONS.contains(event.getAction())) {
-                                ItemStack hb = event.getWhoClicked().getInventory().getItem(event.getHotbarButton());
-                                if (ItemUtils.isNully(hb))
-                                    event.getWhoClicked().getInventory().setItem(event.getHotbarButton(), inv.getResult());
-                                else
+                    if (inv.getRecipe() == null) {
+                        if (ItemUtils.isNotNully(inv.getResult())) {
+                            ItemStack expectedResult = inv.getResult().clone();
+                            do {
+                                ItemStack[] mat = inv.getMatrix();
+                                if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
                                     event.getWhoClicked().getInventory().addItem(inv.getResult());
-                            }
-                            inv.setResult(null);
-                            for (int i = 0; i < mat.length - 1; i++) {
-                                if (ItemUtils.isNotNully(mat[i])) {
-                                    if (mat[i].getAmount() > 1)
-                                        mat[i].setAmount(mat[i].getAmount() - 1);
+                                } else if (PICKUP_ACTIONS.contains(event.getAction())) {
+                                    if (ItemUtils.isNully(onCursor))
+                                        event.getWhoClicked().setItemOnCursor(inv.getResult());
                                     else
-                                        mat[i] = new ItemStack(Material.AIR, 0);
+                                        onCursor.setAmount(onCursor.getAmount() + 1);
+                                } else if (HOTBAR_ACTIONS.contains(event.getAction())) {
+                                    ItemStack hb = event.getWhoClicked().getInventory().getItem(event.getHotbarButton());
+                                    if (ItemUtils.isNully(hb))
+                                        event.getWhoClicked().getInventory().setItem(event.getHotbarButton(), inv.getResult());
+                                    else
+                                        event.getWhoClicked().getInventory().addItem(inv.getResult());
                                 }
-                            }
-                            inv.setMatrix(mat);
-                            checkCrafting(inv, event.getWhoClicked());
-                        } while (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY
-                                && ItemUtils.isNotNully(inv.getResult())
-                                && expectedResult.isSimilar(inv.getResult()));
-                        Bukkit.getServer().getScheduler().runTaskLater( // Stupid workaround bc MC client is badly coded
-                                Rail.INSTANCE, () -> ((Player)event.getWhoClicked()).updateInventory(), 2L);
+                                inv.setResult(null);
+                                for (int i = 0; i < mat.length - 1; i++) {
+                                    if (ItemUtils.isNotNully(mat[i])) {
+                                        if (mat[i].getAmount() > 1)
+                                            mat[i].setAmount(mat[i].getAmount() - 1);
+                                        else
+                                            mat[i] = new ItemStack(Material.AIR, 0);
+                                    }
+                                }
+                                inv.setMatrix(mat);
+                                checkCrafting(inv, event.getWhoClicked());
+                            } while (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY
+                                    && ItemUtils.isNotNully(inv.getResult())
+                                    && expectedResult.isSimilar(inv.getResult()));
+                            Bukkit.getServer().getScheduler().runTaskLater( // Stupid workaround bc MC client is badly coded
+                                    Rail.INSTANCE, () -> ((Player)event.getWhoClicked()).updateInventory(), 2L);
+                        }
+                        event.setCancelled(true);
+                    } else if (Arrays.stream(inv.getContents())
+                            .filter(ItemUtils::isNotNully).anyMatch(ItemUtils::isRailItem)) {
+                        event.setCancelled(true);
                     }
                 }
-                event.setCancelled(true);
             } else {
                 checkCraftingLater((CraftingInventory)event.getView().getTopInventory(), event.getWhoClicked());
             }
