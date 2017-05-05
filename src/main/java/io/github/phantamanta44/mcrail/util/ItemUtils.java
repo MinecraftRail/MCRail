@@ -2,6 +2,7 @@ package io.github.phantamanta44.mcrail.util;
 
 import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.item.IItemBehaviour;
+import io.github.phantamanta44.mcrail.oredict.OreDictionary;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
@@ -26,8 +27,8 @@ public class ItemUtils {
     public static boolean instOf(String id, ItemStack stack) {
         IItemBehaviour item = Rail.itemRegistry().get(id);
         return item != null
-                && stack.getType() == item.material()
-                && item.characteristics().stream().allMatch(c -> c.matches(stack));
+                ? stack.getType() == item.material() && item.characteristics().stream().allMatch(c -> c.matches(stack))
+                : OreDictionary.matches(id, stack);
     }
 
     public static boolean isRailItem(ItemStack stack) {
