@@ -1,5 +1,8 @@
 package io.github.phantamanta44.mcrail.oredict;
 
+import io.github.phantamanta44.mcrail.Rail;
+import io.github.phantamanta44.mcrail.crafting.RailRecipe;
+import io.github.phantamanta44.mcrail.crafting.RailShapelessRecipe;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -12,7 +15,7 @@ import org.bukkit.material.MaterialData;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class OreDictionary { // TODO OREDICT CRAFTING!!!!!!!!
+public class OreDictionary {
 
     private static OreDictionary INSTANCE;
 
@@ -21,31 +24,36 @@ public class OreDictionary { // TODO OREDICT CRAFTING!!!!!!!!
     }
 
     public static void register(String id, Predicate<ItemStack> test) {
-        // TODO Implement
+        INSTANCE.dictionary.computeIfAbsent(id, k -> new LinkedList<>()).add(test);
     }
 
     public static void register(String id, ItemStack stack) {
-        // TODO Implement
+        register(id, ItemUtils.matching(stack));
     }
 
     public static void register(String id, Material material) {
-        // TODO Implement
+        register(id, ItemUtils.matching(material));
     }
 
     public static void register(String id, MaterialData data) {
-        // TODO Implement
+        register(id, ItemUtils.matching(data));
     }
 
     public static void register(String id, String itemId) {
-        // TODO Implement
+        register(id, ItemUtils.matching(itemId));
     }
 
     public static boolean matches(String id, ItemStack stack) {
-        // TODO Implement
+        Collection<Predicate<ItemStack>> tests = INSTANCE.dictionary.get(id);
+        return tests != null && tests.stream().anyMatch(t -> t.test(stack));
     }
+
+    private final Map<String, Collection<Predicate<ItemStack>>> dictionary;
 
     // Adapted from the MinecraftForge project, licensed under GPLv2
     private OreDictionary() {
+        this.dictionary = new HashMap<>();
+
         // tree- and wood-related things
         register("logWood", Material.LOG);
         register("logWood", Material.LOG_2);
@@ -256,37 +264,35 @@ public class OreDictionary { // TODO OREDICT CRAFTING!!!!!!!!
         Collection<Predicate<ItemStack>> replaceStacks = replacements.keySet();
 
         // Ignore recipes for the following items
-        Collection<Predicate<ItemStack>> exclusions = new ArrayList<>(); // TODO Populate
-        /*
-        new ItemStack(Material.LAPIS_BLOCK),
-        new ItemStack(Material.COOKIE),
-        new ItemStack(Material.SMOOTH_BRICK),
-        new ItemStack(Material.STEP, 1, (short)-1),
-        new ItemStack(Material.COBBLESTONE_STAIRS),
-        new ItemStack(Material.COBBLE_WALL),
-        new ItemStack(Material.FENCE),
-        new ItemStack(Material.FENCE_GATE),
-        new ItemStack(Material.WOOD_STAIRS),
-        new ItemStack(Material.SPRUCE_FENCE),
-        new ItemStack(Material.SPRUCE_FENCE_GATE),
-        new ItemStack(Material.SPRUCE_WOOD_STAIRS),
-        new ItemStack(Material.BIRCH_WOOD_STAIRS),
-        new ItemStack(Material.BIRCH_FENCE_GATE),
-        new ItemStack(Material.BIRCH_WOOD_STAIRS),
-        new ItemStack(Material.JUNGLE_FENCE),
-        new ItemStack(Material.JUNGLE_FENCE_GATE),
-        new ItemStack(Material.JUNGLE_WOOD_STAIRS),
-        new ItemStack(Material.ACACIA_FENCE),
-        new ItemStack(Material.ACACIA_FENCE_GATE),
-        new ItemStack(Material.ACACIA_STAIRS),
-        new ItemStack(Material.DARK_OAK_FENCE),
-        new ItemStack(Material.DARK_OAK_FENCE_GATE),
-        new ItemStack(Material.DARK_OAK_STAIRS),
-        new ItemStack(Material.WOOD_STEP),
-        new ItemStack(Material.THIN_GLASS),
-        new ItemStack(Material.BOAT),
-        new ItemStack(Material.WOOD_DOOR);
-        */
+        Collection<Predicate<ItemStack>> exclusions = new ArrayList<>();
+        exclusions.add(ItemUtils.matching(Material.LAPIS_BLOCK));
+        exclusions.add(ItemUtils.matching(Material.COOKIE));
+        exclusions.add(ItemUtils.matching(Material.SMOOTH_BRICK));
+        exclusions.add(ItemUtils.matching(Material.STEP));
+        exclusions.add(ItemUtils.matching(Material.COBBLESTONE_STAIRS));
+        exclusions.add(ItemUtils.matching(Material.COBBLE_WALL));
+        exclusions.add(ItemUtils.matching(Material.FENCE));
+        exclusions.add(ItemUtils.matching(Material.FENCE_GATE));
+        exclusions.add(ItemUtils.matching(Material.WOOD_STAIRS));
+        exclusions.add(ItemUtils.matching(Material.SPRUCE_FENCE));
+        exclusions.add(ItemUtils.matching(Material.SPRUCE_FENCE_GATE));
+        exclusions.add(ItemUtils.matching(Material.SPRUCE_WOOD_STAIRS));
+        exclusions.add(ItemUtils.matching(Material.BIRCH_WOOD_STAIRS));
+        exclusions.add(ItemUtils.matching(Material.BIRCH_FENCE_GATE));
+        exclusions.add(ItemUtils.matching(Material.BIRCH_WOOD_STAIRS));
+        exclusions.add(ItemUtils.matching(Material.JUNGLE_FENCE));
+        exclusions.add(ItemUtils.matching(Material.JUNGLE_FENCE_GATE));
+        exclusions.add(ItemUtils.matching(Material.JUNGLE_WOOD_STAIRS));
+        exclusions.add(ItemUtils.matching(Material.ACACIA_FENCE));
+        exclusions.add(ItemUtils.matching(Material.ACACIA_FENCE_GATE));
+        exclusions.add(ItemUtils.matching(Material.ACACIA_STAIRS));
+        exclusions.add(ItemUtils.matching(Material.DARK_OAK_FENCE));
+        exclusions.add(ItemUtils.matching(Material.DARK_OAK_FENCE_GATE));
+        exclusions.add(ItemUtils.matching(Material.DARK_OAK_STAIRS));
+        exclusions.add(ItemUtils.matching(Material.WOOD_STEP));
+        exclusions.add(ItemUtils.matching(Material.THIN_GLASS));
+        exclusions.add(ItemUtils.matching(Material.BOAT));
+        exclusions.add(ItemUtils.matching(Material.WOOD_DOOR));
 
         Iterator<Recipe> recipes = Bukkit.getServer().recipeIterator();
         List<Recipe> recipesToAdd = new ArrayList<>();
@@ -299,22 +305,47 @@ public class OreDictionary { // TODO OREDICT CRAFTING!!!!!!!!
                 ItemStack output = recipe.getResult();
                 if (ItemUtils.isNotNully(output) && exclusions.stream().anyMatch(e -> e.test(output)))
                     continue;
-                if (containsMatch(true, recipe.recipeItems, replaceStacks)) {
+                if (recipe.getIngredientMap().values().stream().anyMatch(
+                        s -> replaceStacks.stream().anyMatch(p -> p.test(s)))) {
                     recipes.remove();
-                    recipesToAdd.add(new ShapedOreRecipe(recipe, replacements));
+                    RailRecipe newRecipe = new RailRecipe();
+                    for (String line : recipe.getShape())
+                        newRecipe.line(line);
+                    recipe.getIngredientMap().forEach((k, v) -> {
+                        Optional<String> str = replacements.entrySet().stream()
+                                .filter(r -> r.getKey().test(v))
+                                .map(Map.Entry::getValue)
+                                .findAny();
+                        if (str.isPresent())
+                            newRecipe.ingredient(k, str.get());
+                        else
+                            newRecipe.ingredient(k, v);
+                    });
+                    Rail.recipes().register(newRecipe.withResult(recipe.getResult()));
                 }
             } else if (obj instanceof ShapelessRecipe) {
                 ShapelessRecipe recipe = (ShapelessRecipe) obj;
                 ItemStack output = recipe.getResult();
                 if (ItemUtils.isNotNully(output) && exclusions.stream().anyMatch(e -> e.test(output)))
                     continue;
-                if (containsMatch(true, recipe.recipeMaterial.toArray(new ItemStack[recipe.recipeMaterial.size()]), replaceStacks)) {
+                if (recipe.getIngredientList().stream().anyMatch(
+                        s -> replaceStacks.stream().anyMatch(p -> p.test(s)))) {
                     recipes.remove();
-                    recipesToAdd.add(new ShapelessOreRecipe(recipe, replacements));
+                    RailShapelessRecipe newRecipe = new RailShapelessRecipe();
+                    recipe.getIngredientList().forEach(i -> {
+                        Optional<String> str = replacements.entrySet().stream()
+                                .filter(r -> r.getKey().test(i))
+                                .map(Map.Entry::getValue)
+                                .findAny();
+                        if (str.isPresent())
+                            newRecipe.ingredient(str.get());
+                        else
+                            newRecipe.ingredient(i);
+                    });
+                    Rail.recipes().register(newRecipe.withOutput(recipe.getResult()));
                 }
             }
         }
-        recipesToAdd.forEach(Bukkit.getServer()::addRecipe);
     }
 
 }
