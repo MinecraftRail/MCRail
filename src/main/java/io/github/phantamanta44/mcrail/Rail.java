@@ -20,6 +20,7 @@ import io.github.phantamanta44.mcrail.sign.SignManager;
 import io.github.phantamanta44.mcrail.sign.SignRegistry;
 import io.github.phantamanta44.mcrail.sign.WorldDataHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
@@ -28,6 +29,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.LongConsumer;
 
 public class Rail extends JavaPlugin {
@@ -122,6 +124,14 @@ public class Rail extends JavaPlugin {
 
     public static GuiHandler guiHandler() {
         return INSTANCE.guiHandler;
+    }
+
+    public static void onLoad(Consumer<World> callback) {
+        INSTANCE.wdh.registerLoadListener(callback);
+    }
+
+    public static void onSave(Consumer<World> callback) {
+        INSTANCE.wdh.registerSaveListener(callback);
     }
 
     public static long currentTick() {
