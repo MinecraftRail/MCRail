@@ -3,6 +3,7 @@ package io.github.phantamanta44.mcrail.util;
 import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.item.IItemBehaviour;
 import io.github.phantamanta44.mcrail.oredict.OreDictionary;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
@@ -49,11 +50,32 @@ public class ItemUtils {
     }
     
     public static Predicate<ItemStack> matching(ItemStack stack) {
-        return s -> isNotNully(s) && stack.isSimilar(s);
+        return s -> isNotNully(s) && isMatch(stack, s);
     }
     
     public static Predicate<ItemStack> matching(String id) {
         return s -> isNotNully(s) && instOf(id, s);
+    }
+
+    public static boolean isMatch(ItemStack a, ItemStack b) {
+        if (a == null)
+            return b == null;
+        else if (b == null)
+            return false;
+        if (a.getType() != b.getType())
+            return false;
+        byte da = a.getData().getData();
+        if (da != -1) {
+            byte db = b.getData().getData();
+            if (db != -1 && da != db)
+                return false;
+        }
+        if (a.hasItemMeta()) {
+            return b.hasItemMeta() && Bukkit.getServer().getItemFactory()
+                    .equals(a.getItemMeta(), b.getItemMeta());
+        } else {
+            return !b.hasItemMeta();
+        }
     }
 
 }

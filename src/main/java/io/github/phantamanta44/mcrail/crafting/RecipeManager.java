@@ -42,7 +42,7 @@ public class RecipeManager {
     }
 
     public void registerFurnaceFuel(ItemStack fuel, int ticks) {
-        registerFurnaceFuel(fuel::isSimilar, ticks);
+        registerFurnaceFuel(ItemUtils.matching(fuel), ticks);
     }
 
     public void registerFurnaceFuel(String id, int ticks) {

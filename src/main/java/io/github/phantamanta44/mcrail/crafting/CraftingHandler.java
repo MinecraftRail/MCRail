@@ -72,7 +72,7 @@ public class CraftingHandler implements Listener {
                                 checkCrafting(inv, event.getWhoClicked());
                             } while (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY
                                     && ItemUtils.isNotNully(inv.getResult())
-                                    && expectedResult.isSimilar(inv.getResult()));
+                                    && ItemUtils.isMatch(expectedResult, inv.getResult()));
                             Bukkit.getServer().getScheduler().runTaskLater( // Stupid workaround bc MC client is badly coded
                                     Rail.INSTANCE, () -> ((Player)event.getWhoClicked()).updateInventory(), 2L);
                         }

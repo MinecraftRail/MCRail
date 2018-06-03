@@ -8,6 +8,7 @@ import io.github.phantamanta44.mcrail.util.JsonUtils;
 import io.github.phantamanta44.mcrail.util.SignUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Furnace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,7 +50,24 @@ public class SmeltingHandler implements Listener {
             checkFurnaceLater((FurnaceInventory)event.getSource());
         else if (event.getDestination().getType() == InventoryType.FURNACE)
             checkFurnaceLater((FurnaceInventory)event.getDestination());
-        placeholderCheck(event::getItem, event::setItem);
+        ItemStack original = event.getItem();
+        if (placeholderCheck(event::getItem, event::setItem)) {
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
+                int index;
+                for (index = 0; index < event.getSource().getSize(); index++) {
+                    if (ItemUtils.isMatch(event.getSource().getItem(index), original))
+                        break;
+                }
+                ItemStack stack = event.getSource().getItem(index);
+                System.out.println(String.format("%s - %s", stack, original));
+                if (stack.getAmount() > original.getAmount()) {
+                    stack.setAmount(stack.getAmount() - original.getAmount());
+                    event.getSource().setItem(index, stack);
+                } else {
+                    event.getSource().setItem(index, new ItemStack(Material.AIR, 0));
+                }
+            });
+        }
     }
 
     @EventHandler
@@ -70,7 +88,7 @@ public class SmeltingHandler implements Listener {
         });
     }
 
-    private void placeholderCheck(Supplier<ItemStack> getter, Consumer<ItemStack> setter) {
+    private boolean placeholderCheck(Supplier<ItemStack> getter, Consumer<ItemStack> setter) {
         ItemStack in = getter.get();
         if (ItemUtils.isNotNully(in)) {
             ItemMeta meta = in.getItemMeta();
@@ -78,8 +96,10 @@ public class SmeltingHandler implements Listener {
                 ItemStack result = fromPlaceholder(meta.getLore());
                 result.setAmount(result.getAmount() * in.getAmount());
                 setter.accept(result);
+                return true;
             }
         }
+        return false;
     }
 
     @EventHandler
@@ -134,31 +154,24 @@ public class SmeltingHandler implements Listener {
             return true;
         RailSmeltRecipe recipe = Rail.recipes().getSmelting(stack);
         if (recipe == null)
-            return inv.getResult().isSimilar(bukkitRecipeFor(inv.getSmelting()).getResult());
+            return ItemUtils.isMatch(inv.getResult(), bukkitRecipeFor(inv.getSmelting()).getResult());
         if (!inv.getResult().hasItemMeta())
             return false;
         ItemMeta meta = inv.getResult().getItemMeta();
         return meta.hasDisplayName() && meta.getDisplayName().equals(PLACEHOLDER) && meta.hasLore()
-                && Rail.recipes().getSmelting(stack).mapToResult(stack).isSimilar(fromPlaceholder(meta.getLore()));
+                && ItemUtils.isMatch(
+                        Rail.recipes().getSmelting(stack).mapToResult(stack), fromPlaceholder(meta.getLore()));
     }
 
     private static boolean isValid(ItemStack stack) {
-        if (Rail.recipes().getSmelting(stack) != null)
-            return true;
-        Iterator<Recipe> iter = Bukkit.getServer().recipeIterator();
-        while (iter.hasNext()) {
-            Recipe recipe = iter.next();
-            if (recipe instanceof FurnaceRecipe && ((FurnaceRecipe)recipe).getInput().isSimilar(stack))
-                return true;
-        }
-        return false;
+        return Rail.recipes().getSmelting(stack) != null || bukkitRecipeFor(stack) != null;
     }
 
     private static FurnaceRecipe bukkitRecipeFor(ItemStack stack) {
         Iterator<Recipe> iter = Bukkit.getServer().recipeIterator();
         while (iter.hasNext()) {
             Recipe recipe = iter.next();
-            if (recipe instanceof FurnaceRecipe && ((FurnaceRecipe)recipe).getInput().isSimilar(stack))
+            if (recipe instanceof FurnaceRecipe && ItemUtils.isMatch(((FurnaceRecipe)recipe).getInput(), stack))
                 return (FurnaceRecipe)recipe;
         }
         return null;
@@ -167,9 +180,9 @@ public class SmeltingHandler implements Listener {
     private static ItemStack fromPlaceholder(List<String> meta) {
         return JsonUtils.deserItemStack(JsonUtils.JSONP.parse(new String(Base64.getDecoder().decode(
                 meta.stream()
-                .skip(1)
-                .map(s -> s.substring(ChatColor.DARK_GRAY.toString().length()))
-                .collect(Collectors.joining())))));
+                        .skip(1)
+                        .map(s -> s.substring(ChatColor.DARK_GRAY.toString().length()))
+                        .collect(Collectors.joining())))));
     }
 
     private static List<String> toPlaceholder(ItemStack result) {

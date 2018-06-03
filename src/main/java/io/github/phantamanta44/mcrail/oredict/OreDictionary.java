@@ -21,6 +21,7 @@ public class OreDictionary {
 
     public static void init() {
         INSTANCE = new OreDictionary();
+        INSTANCE.doInit();
     }
 
     public static void register(String id, Predicate<ItemStack> test) {
@@ -50,10 +51,12 @@ public class OreDictionary {
 
     private final Map<String, Collection<Predicate<ItemStack>>> dictionary;
 
-    // Adapted from the MinecraftForge project, licensed under GPLv2
     private OreDictionary() {
         this.dictionary = new HashMap<>();
+    }
 
+    // Adapted from the MinecraftForge project, licensed under GPLv2
+    private void doInit() {
         // tree- and wood-related things
         register("logWood", Material.LOG);
         register("logWood", Material.LOG_2);
@@ -295,7 +298,6 @@ public class OreDictionary {
         exclusions.add(ItemUtils.matching(Material.WOOD_DOOR));
 
         Iterator<Recipe> recipes = Bukkit.getServer().recipeIterator();
-        List<Recipe> recipesToAdd = new ArrayList<>();
 
         // Search vanilla recipes for recipes to replace
         while (recipes.hasNext()) {
