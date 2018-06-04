@@ -3,6 +3,7 @@ package io.github.phantamanta44.mcrail.crafting;
 import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.item.IItemBehaviour;
 import io.github.phantamanta44.mcrail.item.characteristic.CharDamage;
+import io.github.phantamanta44.mcrail.oredict.OreDictionary;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -10,19 +11,21 @@ import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class RailSmeltRecipe {
     
     private Predicate<ItemStack> input;
-    private Object inputType;
+    private Collection<Object> inputTypes;
     private Function<ItemStack, ItemStack> output;
     private int xp;
     
     public RailSmeltRecipe() {
         this.input = null;
-        this.inputType = null;
+        this.inputTypes = new LinkedList<>();
         this.output = null;
         this.xp = 0;
     }
@@ -38,7 +41,7 @@ public class RailSmeltRecipe {
         if (output != null)
             throw new IllegalStateException("This recipe is already finished!");
         input = ing;
-        inputType = type;
+        inputTypes.add(type);
         return this;
     }
 
@@ -46,7 +49,7 @@ public class RailSmeltRecipe {
         if (output != null)
             throw new IllegalStateException("This recipe is already finished!");
         input = ing;
-        inputType = type;
+        inputTypes.add(type);
         return this;
     }
 
@@ -77,6 +80,25 @@ public class RailSmeltRecipe {
                 .orElseGet(() -> withInput(ItemUtils.matching(ing), item.material()));
     }
 
+    public RailSmeltRecipe withInputOreDict(String id) {
+        if (output != null)
+            throw new IllegalStateException("This recipe is already finished!");
+        input = OreDictionary.predicate(id);
+        Rail.itemRegistry().stream()
+                .map(e -> Rail.itemRegistry().create(e.getKey()))
+                .filter(is -> OreDictionary.matches(id, is))
+                .forEach(is -> inputTypes.add(is.getData()));
+        for (Material mat : Material.values()) {
+            ItemStack stack = new ItemStack(mat);
+            for (byte i = 0; i < 16; i++) {
+                stack.getData().setData(i);
+                if (OreDictionary.matches(id, stack))
+                    inputTypes.add(stack.getData());
+            }
+        }
+        return this;
+    }
+
     public RailSmeltRecipe withOutput(Function<ItemStack, ItemStack> mapper) {
         if (output != null)
             throw new IllegalStateException("This recipe is already finished!");
@@ -97,9 +119,7 @@ public class RailSmeltRecipe {
     }
 
     public boolean matches(ItemStack input) {
-        return (!(inputType instanceof Material) || input.getType().equals(inputType))
-                && (!(inputType instanceof MaterialData) || input.getData().equals(inputType))
-                && this.input.test(input);
+        return this.input.test(input);
     }
 
     public ItemStack mapToResult(ItemStack input) {
@@ -111,10 +131,12 @@ public class RailSmeltRecipe {
     }
 
     void registerBukkit() {
-        if (inputType instanceof Material)
-            Bukkit.getServer().addRecipe(new FurnaceRecipe(new ItemStack(Material.STONE), (Material)inputType));
-        else
-            Bukkit.getServer().addRecipe(new FurnaceRecipe(new ItemStack(Material.STONE), (MaterialData)inputType));
+        for (Object inputType : inputTypes) {
+            if (inputType instanceof Material)
+                Bukkit.getServer().addRecipe(new FurnaceRecipe(new ItemStack(Material.STONE), (Material)inputType));
+            else
+                Bukkit.getServer().addRecipe(new FurnaceRecipe(new ItemStack(Material.STONE), (MaterialData)inputType));
+        }
     }
 
 }

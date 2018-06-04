@@ -2,9 +2,9 @@ package io.github.phantamanta44.mcrail.item;
 
 import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.item.characteristic.CharLastLore;
+import io.github.phantamanta44.mcrail.item.characteristic.CharMeta;
 import io.github.phantamanta44.mcrail.item.characteristic.CharName;
 import io.github.phantamanta44.mcrail.item.characteristic.IItemCharacteristic;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -13,21 +13,33 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class SignEntityItem implements IItemBehaviour {
+public class ItemRailTile implements IItemBehaviour {
 
     private final String id;
     private final String name;
+    private final Material material;
     private final Collection<IItemCharacteristic> characteristics;
 
-    public SignEntityItem(String id, String name) {
+    public ItemRailTile(String id, String name, Material material, Collection<IItemCharacteristic> characteristics) {
         this.id = id;
         this.name = name;
-        this.characteristics = Arrays.asList(new CharLastLore(ChatColor.GRAY + "ID: " + id), new CharName(name));
+        this.material = material;
+        this.characteristics = characteristics;
+    }
+
+    public ItemRailTile(String id, String name, Material material, byte meta) {
+        this(id, name, material,
+                Arrays.asList(new CharLastLore(ChatColor.GRAY + "Rail Tile: " + id), new CharName(name), new CharMeta(meta)));
+    }
+
+    public ItemRailTile(String id, String name, Material material) {
+        this(id, name, material,
+                Arrays.asList(new CharLastLore(ChatColor.GRAY + "Rail Tile: " + id), new CharName(name)));
     }
 
     @Override
     public Material material() {
-        return Material.SIGN;
+        return material;
     }
 
     @Override
@@ -37,12 +49,10 @@ public class SignEntityItem implements IItemBehaviour {
 
     @Override
     public void onPlace(BlockPlaceEvent event, ItemStack stack) {
-        Rail.signManager().register(id, name, event.getBlock());
-        Bukkit.getServer().getScheduler().runTaskLater(
-                Rail.INSTANCE, () -> event.getPlayer().closeInventory(), 1L);
+        Rail.tileManager().register(id, name, event.getBlock());
     }
 
-    public String getSignId() {
+    public String getTileId() {
         return id;
     }
 

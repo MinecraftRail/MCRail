@@ -14,11 +14,13 @@ import io.github.phantamanta44.mcrail.item.ItemHandler;
 import io.github.phantamanta44.mcrail.item.ItemRegistry;
 import io.github.phantamanta44.mcrail.item.VanillaContainerItemAdapter;
 import io.github.phantamanta44.mcrail.model.IContainerItem;
+import io.github.phantamanta44.mcrail.module.InitPhase;
+import io.github.phantamanta44.mcrail.module.ModuleManager;
 import io.github.phantamanta44.mcrail.oredict.OreDictionary;
-import io.github.phantamanta44.mcrail.sign.SignBlockHandler;
-import io.github.phantamanta44.mcrail.sign.SignManager;
-import io.github.phantamanta44.mcrail.sign.SignRegistry;
-import io.github.phantamanta44.mcrail.sign.WorldDataHandler;
+import io.github.phantamanta44.mcrail.tile.RailTileHandler;
+import io.github.phantamanta44.mcrail.tile.RailTileManager;
+import io.github.phantamanta44.mcrail.tile.RailTileRegistry;
+import io.github.phantamanta44.mcrail.tile.WorldDataHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -36,13 +38,13 @@ public class Rail extends JavaPlugin {
 
     public static Rail INSTANCE;
 
-    private SignRegistry signReg;
+    private RailTileRegistry tileReg;
     private ItemRegistry itemReg;
     private FluidRegistry fluidReg;
     private AdapterRegistry<Block> blockAdapterReg;
     private AdapterRegistry<ItemStack> itemAdapterReg;
 
-    private SignManager signMan;
+    private RailTileManager tileMan;
     private RecipeManager recipeMan;
     private WorldDataHandler wdh;
     private GuiHandler guiHandler;
@@ -51,11 +53,17 @@ public class Rail extends JavaPlugin {
     private long tick;
     private List<LongConsumer> tickHandlers;
 
+    private ModuleManager modMan;
+    private InitPhase initPhase;
+
     @Override
     public void onEnable() {
+        getLogger().info("Rail pre-initializing!");
         INSTANCE = this;
+        initPhase = InitPhase.NOT_INITIALIZED;
+        getLogger().info("Creating registries...");
         tickHandlers = new LinkedList<>();
-        signReg = new SignRegistry();
+        tileReg = new RailTileRegistry();
         itemReg = new ItemRegistry();
         recipeMan = new RecipeManager();
         fluidReg = new FluidRegistry();
@@ -63,19 +71,46 @@ public class Rail extends JavaPlugin {
         itemAdapterReg = new AdapterRegistry<>();
         itemAdapterReg.register(IFluidContainer.class, new FluidBucketAdapter());
         itemAdapterReg.register(IContainerItem.class, new VanillaContainerItemAdapter());
-        OreDictionary.init();
-        onTick(signMan = new SignManager());
-        Bukkit.getServer().getPluginManager().registerEvents(new SignBlockHandler(), this);
+        getLogger().info("Registring hooks...");
+        onTick(tileMan = new RailTileManager());
+        Bukkit.getServer().getPluginManager().registerEvents(new RailTileHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new ItemHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(wdh = new WorldDataHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(guiHandler = new GuiHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new CraftingHandler(), this);
         Bukkit.getServer().getPluginManager().registerEvents(new SmeltingHandler(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(modMan = new ModuleManager(), this);
         Bukkit.getServer().getPluginCommand("ritems").setExecutor(new CommandItems());
         Bukkit.getServer().getPluginCommand("ritem").setExecutor(new CommandItem());
+        getLogger().info("Initializing tick handler...");
         tick = 0L;
         tickTask = Bukkit.getServer().getScheduler().runTaskTimer(this, this::tick, 1L, 1L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, wdh::loadAll);
+        getLogger().info("Finished pre-initialization!");
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, this::init);
+    }
+
+    private void init() {
+        getLogger().info("Rail initializing!");
+        for (int i = 1; i <= 5; i++) {
+            phase(InitPhase.values()[i]);
+            switch (initPhase) {
+                case REGISTRATION:
+                    getLogger().info("Initializing ore dictionary...");
+                    OreDictionary.init();
+                    break;
+            }
+            getLogger().info("Passing phase to modules...");
+            modMan.act(initPhase);
+        }
+        phase(InitPhase.LOADING_DATA);
+        getLogger().info("Loading world data...");
+        wdh.loadAll();
+        phase(InitPhase.INITIALIZED);
+    }
+
+    private void phase(InitPhase phase) {
+        initPhase = phase;
+        getLogger().info("Entered phase: " + initPhase.name());
     }
 
     @Override
@@ -94,48 +129,64 @@ public class Rail extends JavaPlugin {
         tick++;
     }
 
-    public static SignRegistry signRegistry() {
-        return INSTANCE.signReg;
+    public static RailTileRegistry tileRegistry() {
+        phaseCheck(InitPhase.REGISTRATION);
+        return INSTANCE.tileReg;
     }
 
     public static ItemRegistry itemRegistry() {
+        phaseCheck(InitPhase.REGISTRATION);
         return INSTANCE.itemReg;
     }
 
     public static FluidRegistry fluidRegistry() {
+        phaseCheck(InitPhase.REGISTRATION);
         return INSTANCE.fluidReg;
     }
 
     public static AdapterRegistry<Block> blockAdapters() {
+        phaseCheck(InitPhase.SETUP);
         return INSTANCE.blockAdapterReg;
     }
 
     public static AdapterRegistry<ItemStack> itemAdapters() {
+        phaseCheck(InitPhase.SETUP);
         return INSTANCE.itemAdapterReg;
     }
 
-    public static SignManager signManager() {
-        return INSTANCE.signMan;
+    public static RailTileManager tileManager() {
+        phaseCheck(InitPhase.LOADING_DATA);
+        return INSTANCE.tileMan;
     }
 
     public static RecipeManager recipes() {
+        phaseCheck(InitPhase.POST_REGISTRATION);
         return INSTANCE.recipeMan;
     }
 
     public static GuiHandler guiHandler() {
+        phaseCheck(InitPhase.INITIALIZED);
         return INSTANCE.guiHandler;
     }
 
     public static void onLoad(Consumer<World> callback) {
+        phaseCheck(InitPhase.POST_REGISTRATION);
         INSTANCE.wdh.registerLoadListener(callback);
     }
 
     public static void onSave(Consumer<World> callback) {
+        phaseCheck(InitPhase.POST_REGISTRATION);
         INSTANCE.wdh.registerSaveListener(callback);
     }
 
     public static long currentTick() {
+        phaseCheck(InitPhase.INITIALIZED);
         return INSTANCE.tick;
+    }
+
+    private static void phaseCheck(InitPhase phase) {
+        if (INSTANCE.initPhase.ordinal() < phase.ordinal())
+            throw new IllegalStateException("Cannot perform this action before " + phase.name() + " phase!");
     }
 
 }

@@ -1,4 +1,4 @@
-package io.github.phantamanta44.mcrail.sign;
+package io.github.phantamanta44.mcrail.tile;
 
 import io.github.phantamanta44.mcrail.Rail;
 import org.bukkit.Bukkit;
@@ -23,22 +23,22 @@ public class WorldDataHandler implements Listener {
 
     @EventHandler
     public void onSave(WorldSaveEvent event) {
-        Rail.signManager().save(event.getWorld());
+        Rail.tileManager().save(event.getWorld());
         saveListeners.forEach(cb -> cb.accept(event.getWorld()));
     }
 
     @EventHandler
     public void onLoad(WorldInitEvent event) {
-        Rail.signManager().load(event.getWorld());
+        Rail.tileManager().load(event.getWorld());
         loadListeners.forEach(cb -> cb.accept(event.getWorld()));
     }
 
     public void saveAll() {
-        Bukkit.getServer().getWorlds().forEach(Rail.signManager()::save);
+        Bukkit.getServer().getWorlds().forEach(Rail.tileManager()::save);
     }
 
     public void loadAll() {
-        Bukkit.getServer().getWorlds().forEach(Rail.signManager()::load);
+        Bukkit.getServer().getWorlds().forEach(Rail.tileManager()::load);
     }
 
     public void registerLoadListener(Consumer<World> callback) {

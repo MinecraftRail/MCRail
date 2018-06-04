@@ -1,6 +1,7 @@
 package io.github.phantamanta44.mcrail.crafting;
 
 import io.github.phantamanta44.mcrail.Rail;
+import io.github.phantamanta44.mcrail.oredict.OreDictionary;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -59,6 +60,10 @@ public class RailRecipe implements IGridRecipe {
 
     public RailRecipe ingredient(char c, String ing) {
         return ingredient(c, ItemUtils.matching(ing));
+    }
+
+    public RailRecipe ingOreDict(char c, String id) {
+        return ingredient(c, OreDictionary.predicate(id));
     }
 
     public RailRecipe withResult(Function<ItemStack[], ItemStack> mapper) {

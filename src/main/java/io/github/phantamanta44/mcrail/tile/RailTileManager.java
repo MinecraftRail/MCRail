@@ -1,4 +1,4 @@
-package io.github.phantamanta44.mcrail.sign;
+package io.github.phantamanta44.mcrail.tile;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -19,11 +19,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.LongConsumer;
 
-public class SignManager implements LongConsumer {
+public class RailTileManager implements LongConsumer {
 
-    private final Map<BlockPos, SignEntity> entities;
+    private final Map<BlockPos, RailTile> entities;
 
-    public SignManager() {
+    public RailTileManager() {
         this.entities = new HashMap<>();
     }
 
@@ -32,22 +32,22 @@ public class SignManager implements LongConsumer {
         entities.entrySet().stream()
                 .filter(e -> e.getKey().exists())
                 .map(Map.Entry::getValue)
-                .forEach(SignEntity::tick);
+                .forEach(RailTile::tick);
     }
 
-    public void onSignClick(PlayerInteractEvent event) {
-        SignEntity se = entities.get(new BlockPos(event.getClickedBlock()));
-        if (se != null)
-            se.onInteract(event);
+    public void onTileClick(PlayerInteractEvent event) {
+        RailTile tile = entities.get(new BlockPos(event.getClickedBlock()));
+        if (tile != null)
+            tile.onInteract(event);
     }
 
     public boolean breakCheck(Block block) {
-        SignEntity se = entities.remove(new BlockPos(block));
-        if (se != null) {
-            se.destroy();
+        RailTile tile = entities.remove(new BlockPos(block));
+        if (tile != null) {
+            tile.destroy();
             Collection<ItemStack> drops = new LinkedList<>();
-            drops.add(Rail.itemRegistry().create(se.id()));
-            se.modifyDrops(drops);
+            drops.add(Rail.itemRegistry().create(tile.id()));
+            tile.modifyDrops(drops);
             Location loc = block.getLocation().add(0.5D, 0.5D, 0.5D);
             block.setType(Material.AIR);
             drops.forEach(d -> block.getWorld().dropItemNaturally(loc, d));
@@ -57,15 +57,15 @@ public class SignManager implements LongConsumer {
     }
 
     public void register(String id, String name, Block block) {
-        SignEntity se = Rail.signRegistry().createEntity(id, name, block);
-        se.init();
-        entities.put(new BlockPos(block), se);
+        RailTile tile = Rail.tileRegistry().createEntity(id, name, block);
+        tile.init();
+        entities.put(new BlockPos(block), tile);
     }
 
     public void destroy(Block block) {
-        SignEntity se = entities.remove(new BlockPos(block));
-        if (se != null)
-            se.destroy();
+        RailTile tile = entities.remove(new BlockPos(block));
+        if (tile != null)
+            tile.destroy();
     }
 
     public void save(World world) {
@@ -86,7 +86,7 @@ public class SignManager implements LongConsumer {
         try (PrintStream out = new PrintStream(new FileOutputStream(file))) {
             out.println(JsonUtils.GSON.toJson(dto));
         } catch (IOException e) {
-            Rail.INSTANCE.getLogger().severe("Failed to save sign entity data in world: " + world.getName());
+            Rail.INSTANCE.getLogger().severe("Failed to save Rail tile data in world: " + world.getName());
             e.printStackTrace();
         }
     }
@@ -102,22 +102,22 @@ public class SignManager implements LongConsumer {
                     try {
                         JsonObject dto2 = e.getAsJsonObject();
                         BlockPos pos = BlockPos.deserialize(dto2.get("pos").getAsJsonObject());
-                        SignEntity se = Rail.signRegistry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
-                        se.deserialize(dto2.get("entity").getAsJsonObject());
-                        entities.put(pos, se);
+                        RailTile tile = Rail.tileRegistry().providerFor(dto2.get("id").getAsString()).apply(pos.block());
+                        tile.deserialize(dto2.get("entity").getAsJsonObject());
+                        entities.put(pos, tile);
                     } catch (Exception e2) {
-                        Rail.INSTANCE.getLogger().severe("Sign entity failed to load");
+                        Rail.INSTANCE.getLogger().severe("Rail tile failed to load");
                         e2.printStackTrace();
                     }
                 });
             } catch (IOException e) {
-                Rail.INSTANCE.getLogger().severe("Failed to load sign entity data in world: " + world.getName());
+                Rail.INSTANCE.getLogger().severe("Failed to load Rail tile data in world: " + world.getName());
                 e.printStackTrace();
             }
         }
     }
 
-    public SignEntity getAt(BlockPos pos) {
+    public RailTile getAt(BlockPos pos) {
         return entities.get(pos);
     }
 

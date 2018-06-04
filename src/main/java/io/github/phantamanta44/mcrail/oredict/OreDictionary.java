@@ -17,11 +17,20 @@ import java.util.function.Predicate;
 
 public class OreDictionary {
 
+    private static final String[] DYES = {
+            "Black", "Red", "Green", "Brown", "Blue", "Purple", "Cyan", "LightGray",
+            "Gray", "Pink", "Lime", "Yellow", "LightBlue", "Magenta", "Orange", "White"
+    };
+
     private static OreDictionary INSTANCE;
 
     public static void init() {
         INSTANCE = new OreDictionary();
         INSTANCE.doInit();
+    }
+
+    public static void initRecipes() {
+        INSTANCE.doRecipes();
     }
 
     public static void register(String id, Predicate<ItemStack> test) {
@@ -47,6 +56,10 @@ public class OreDictionary {
     public static boolean matches(String id, ItemStack stack) {
         Collection<Predicate<ItemStack>> tests = INSTANCE.dictionary.get(id);
         return tests != null && tests.stream().anyMatch(t -> t.test(stack));
+    }
+
+    public static Predicate<ItemStack> predicate(String id) {
+        return is -> matches(id, is);
     }
 
     private final Map<String, Collection<Predicate<ItemStack>>> dictionary;
@@ -190,6 +203,18 @@ public class OreDictionary {
         register("chestEnder", Material.ENDER_CHEST);
         register("chestTrapped", Material.TRAPPED_CHEST);
 
+        // Register dyes
+        for (int i = 0; i < 16; i++) {
+            register("dye" + DYES[i],
+                    ItemUtils.matching(new MaterialData(Material.INK_SACK, (byte)i)));
+            register("blockGlass" + DYES[i],
+                    ItemUtils.matching(new MaterialData(Material.STAINED_GLASS, (byte)(15 - i))));
+            register("paneGlass" + DYES[i],
+                    ItemUtils.matching(new MaterialData(Material.STAINED_GLASS_PANE, (byte)(15 - i))));
+        }
+    }
+
+    private void doRecipes() {
         // Build our list of items to replace with ore tags
         Map<Predicate<ItemStack>, String> replacements = new HashMap<>();
 
@@ -246,22 +271,14 @@ public class OreDictionary {
         replacements.put(ItemUtils.matching(Material.ENDER_CHEST), "chestEnder");
         replacements.put(ItemUtils.matching(Material.TRAPPED_CHEST), "chestTrapped");
 
-        // Register dyes
-        String[] dyes = {
-                "Black", "Red", "Green", "Brown", "Blue", "Purple", "Cyan", "LightGray",
-                "Gray", "Pink", "Lime", "Yellow", "LightBlue", "Magenta", "Orange", "White"
-        };
-
+        // dyes
         for (int i = 0; i < 16; i++) {
-            Predicate<ItemStack> dye = ItemUtils.matching(new MaterialData(Material.INK_SACK, (byte)i));
-            Predicate<ItemStack> block = ItemUtils.matching(new MaterialData(Material.STAINED_GLASS, (byte)(15 - i)));
-            Predicate<ItemStack> pane = ItemUtils.matching(new MaterialData(Material.STAINED_GLASS_PANE, (byte)(15 - i)));
-            register("dye" + dyes[i], dye);
-            register("blockGlass" + dyes[i], block);
-            register("paneGlass" + dyes[i], pane);
-            replacements.put(dye, "dye" + dyes[i]);
-            replacements.put(block, "blockGlass" + dyes[i]);
-            replacements.put(pane, "paneGlass" + dyes[i]);
+            replacements.put(ItemUtils.matching(new MaterialData(Material.INK_SACK, (byte)i)),
+                    "dye" + DYES[i]);
+            replacements.put(ItemUtils.matching(new MaterialData(Material.STAINED_GLASS, (byte)(15 - i))),
+                    "blockGlass" + DYES[i]);
+            replacements.put(ItemUtils.matching(new MaterialData(Material.STAINED_GLASS_PANE, (byte)(15 - i))),
+                    "paneGlass" + DYES[i]);
         }
 
         Collection<Predicate<ItemStack>> replaceStacks = replacements.keySet();

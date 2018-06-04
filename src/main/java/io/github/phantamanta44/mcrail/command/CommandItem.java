@@ -14,7 +14,7 @@ public class CommandItem implements CommandExecutor {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Only players can use this command.");
             return true;
-        } else if (!sender.hasPermission("rail.sign")) {
+        } else if (!sender.hasPermission("rail.item")) {
             sender.sendMessage(ChatColor.RED + "No permission!");
             return true;
         } else if (args.length < 1) {

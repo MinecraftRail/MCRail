@@ -5,7 +5,7 @@ import io.github.phantamanta44.mcrail.model.IContainerItem;
 import io.github.phantamanta44.mcrail.util.AdapterUtils;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
 import io.github.phantamanta44.mcrail.util.JsonUtils;
-import io.github.phantamanta44.mcrail.util.SignUtils;
+import io.github.phantamanta44.mcrail.util.TileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -190,7 +190,7 @@ public class SmeltingHandler implements Listener {
         if (result.hasItemMeta() && result.getItemMeta().hasDisplayName())
             lore.add(ChatColor.RESET + result.getItemMeta().getDisplayName());
         else
-            lore.add(ChatColor.RESET + SignUtils.formatName(result.getType().name()));
+            lore.add(ChatColor.RESET + TileUtils.formatName(result.getType().name()));
         String ser = Base64.getEncoder()
                 .encodeToString(JsonUtils.GSONC.toJson(JsonUtils.serItemStack(result)).getBytes());
         while (ser.length() > 0) {
