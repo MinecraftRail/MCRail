@@ -42,19 +42,23 @@ public class ItemUtils {
     }
     
     public static Predicate<ItemStack> matching(Material material) {
-        return s -> isNotNully(s) && s.getType().equals(material) && !isRailItem(s);
+        return s -> isNotNully(s) && isMatch(material, s);
+    }
+
+    public static boolean isMatch(Material material, ItemStack stack) {
+        return stack.getType().equals(material) && !isRailItem(stack);
     }
     
     public static Predicate<ItemStack> matching(MaterialData data) {
-        return s -> isNotNully(s) && s.getData().equals(data) && !isRailItem(s);
+        return s -> isNotNully(s) && isMatch(data, s);
+    }
+
+    public static boolean isMatch(MaterialData data, ItemStack stack) {
+        return stack.getData().equals(data) && !isRailItem(stack);
     }
     
     public static Predicate<ItemStack> matching(ItemStack stack) {
         return s -> isNotNully(s) && isMatch(stack, s);
-    }
-    
-    public static Predicate<ItemStack> matching(String id) {
-        return s -> isNotNully(s) && instOf(id, s);
     }
 
     public static boolean isMatch(ItemStack a, ItemStack b) {
@@ -76,6 +80,10 @@ public class ItemUtils {
         } else {
             return !b.hasItemMeta();
         }
+    }
+
+    public static Predicate<ItemStack> matching(String id) {
+        return s -> isNotNully(s) && instOf(id, s);
     }
 
 }

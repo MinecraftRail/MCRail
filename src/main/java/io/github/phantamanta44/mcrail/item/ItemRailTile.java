@@ -48,8 +48,9 @@ public class ItemRailTile implements IItemBehaviour {
     }
 
     @Override
-    public void onPlace(BlockPlaceEvent event, ItemStack stack) {
+    public boolean onPlace(BlockPlaceEvent event, ItemStack stack) {
         Rail.tileManager().register(id, name, event.getBlock());
+        return true;
     }
 
     public String getTileId() {

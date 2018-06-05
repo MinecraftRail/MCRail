@@ -2,7 +2,8 @@ package io.github.phantamanta44.mcrail.item;
 
 import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
-import io.github.phantamanta44.mcrail.util.TriConsumer;
+import io.github.phantamanta44.mcrail.util.TriPredicate;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -48,12 +49,12 @@ public class ItemHandler implements Listener {
         delegate(event, e -> e.getPlayer().getItemInHand(), IItemBehaviour::onBlockBreak);
     }
 
-    private static <T extends Event> void delegate(T event, Function<T, ItemStack> stackGetter, TriConsumer<IItemBehaviour, T, ItemStack> delFunc) {
+    private static <T extends Event & Cancellable> void delegate(T event, Function<T, ItemStack> stackGetter, TriPredicate<IItemBehaviour, T, ItemStack> delFunc) {
         ItemStack stack = stackGetter.apply(event);
         if (ItemUtils.isNotNully(stack)) {
             IItemBehaviour item = Rail.itemRegistry().get(stack);
-            if (item != null)
-                delFunc.accept(item, event, stack);
+            if (item != null && !delFunc.test(item, event, stack))
+                event.setCancelled(true);
         }
     }
     

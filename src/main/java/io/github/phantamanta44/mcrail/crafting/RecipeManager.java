@@ -1,5 +1,6 @@
 package io.github.phantamanta44.mcrail.crafting;
 
+import io.github.phantamanta44.mcrail.oredict.OreDictionary;
 import io.github.phantamanta44.mcrail.util.ItemUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -47,6 +48,10 @@ public class RecipeManager {
 
     public void registerFurnaceFuel(String id, int ticks) {
         registerFurnaceFuel(ItemUtils.matching(id), ticks);
+    }
+
+    public void registerFurnaceFuelOreDict(String id, int ticks) {
+        registerFurnaceFuel(OreDictionary.predicate(id), ticks);
     }
 
     public ItemStack recipeCheck(ItemStack[] mat) {

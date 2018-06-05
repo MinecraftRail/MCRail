@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -39,6 +40,12 @@ public class RailTileManager implements LongConsumer {
         RailTile tile = entities.get(new BlockPos(event.getClickedBlock()));
         if (tile != null)
             tile.onInteract(event);
+    }
+
+    public void dispatchEvent(BlockEvent event) {
+        RailTile tile = entities.get(new BlockPos(event.getBlock()));
+        if (tile != null)
+            tile.consumeEvent(event);
     }
 
     public boolean breakCheck(Block block) {

@@ -18,28 +18,28 @@ public interface IItemBehaviour {
 
     Collection<IItemCharacteristic> characteristics();
 
-    default void onUse(PlayerInteractEvent event, ItemStack stack) {
-        // NO-OP
+    default boolean onUse(PlayerInteractEvent event, ItemStack stack) {
+        return true;
     }
 
-    default void onEat(PlayerItemConsumeEvent event, ItemStack stack) {
-        // NO-OP
+    default boolean onEat(PlayerItemConsumeEvent event, ItemStack stack) {
+        return false;
     }
 
-    default void onDamage(PlayerItemDamageEvent event, ItemStack stack) {
-        // NO-OP
+    default boolean onDamage(PlayerItemDamageEvent event, ItemStack stack) {
+        return false;
     }
 
-    default void onPickup(PlayerPickupItemEvent event, ItemStack stack) {
-        // NO-OP
+    default boolean onPickup(PlayerPickupItemEvent event, ItemStack stack) {
+        return true;
     }
 
-    default void onPlace(BlockPlaceEvent event, ItemStack stack) {
-        // NO-OP
+    default boolean onPlace(BlockPlaceEvent event, ItemStack stack) {
+        return false;
     }
 
-    default void onBlockBreak(BlockBreakEvent event, ItemStack stack) {
-        // NO-OP
+    default boolean onBlockBreak(BlockBreakEvent event, ItemStack stack) {
+        return true;
     }
 
 }

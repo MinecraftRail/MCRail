@@ -1,15 +1,14 @@
 package io.github.phantamanta44.mcrail.tile;
 
 import io.github.phantamanta44.mcrail.Rail;
+import io.github.phantamanta44.mcrail.util.TileUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.material.Sign;
 
@@ -50,6 +49,53 @@ public class RailTileHandler implements Listener {
                 event.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    public void onPistonPush(BlockPistonExtendEvent event) {
+        if (event.getBlocks().stream().anyMatch(TileUtils::existsAt))
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPistonPull(BlockPistonRetractEvent event) {
+        if (event.isSticky() && event.getBlocks().stream().anyMatch(TileUtils::existsAt))
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEvent(BlockDamageEvent event) {
+        Rail.tileManager().dispatchEvent(event);
+    }
+
+    @EventHandler
+    public void onEvent(BlockDispenseEvent event) {
+        Rail.tileManager().dispatchEvent(event);
+    }
+
+    @EventHandler
+    public void onEvent(BlockExpEvent event) {
+        Rail.tileManager().dispatchEvent(event);
+    }
+
+    @EventHandler
+    public void onEvent(BlockIgniteEvent event) {
+        Rail.tileManager().dispatchEvent(event);
+    }
+
+    @EventHandler
+    public void onEvent(BlockRedstoneEvent event) {
+        Rail.tileManager().dispatchEvent(event);
+    }
+
+    @EventHandler
+    public void onEvent(BrewEvent event) {
+        Rail.tileManager().dispatchEvent(event);
+    }
+
+    @EventHandler
+    public void onEvent(NotePlayEvent event) {
+        Rail.tileManager().dispatchEvent(event);
     }
 
 }

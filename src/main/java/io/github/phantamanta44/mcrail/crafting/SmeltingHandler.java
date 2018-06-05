@@ -17,23 +17,95 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Base64;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class SmeltingHandler implements Listener {
 
+    private static final Set<Material> VANILLA_FUEL = EnumSet.of(
+            Material.LAVA_BUCKET, Material.COAL_BLOCK, Material.BLAZE_ROD, Material.COAL, Material.BOAT, Material.LOG,
+            Material.LOG_2, Material.WOOD, Material.WOOD_PLATE, Material.FENCE, Material.FENCE_GATE,
+            Material.WOOD_STAIRS, Material.BIRCH_WOOD_STAIRS, Material.JUNGLE_WOOD_STAIRS, Material.SPRUCE_WOOD_STAIRS,
+            Material.ACACIA_STAIRS, Material.DARK_OAK_STAIRS, Material.TRAP_DOOR, Material.WORKBENCH,
+            Material.BOOKSHELF, Material.CHEST, Material.TRAPPED_CHEST, Material.DAYLIGHT_DETECTOR, Material.JUKEBOX,
+            Material.NOTE_BLOCK, Material.HUGE_MUSHROOM_1, Material.HUGE_MUSHROOM_2, Material.BANNER, Material.BOW,
+            Material.FISHING_ROD, Material.LADDER, Material.WOOD_PICKAXE, Material.WOOD_AXE, Material.WOOD_SWORD,
+            Material.WOOD_HOE, Material.WOOD_SPADE, Material.SIGN, Material.WOOD_DOOR, Material.DARK_OAK_DOOR_ITEM,
+            Material.ACACIA_DOOR_ITEM, Material.BIRCH_DOOR_ITEM, Material.SPRUCE_DOOR_ITEM, Material.JUNGLE_DOOR_ITEM,
+            Material.WOOD_STEP, Material.SAPLING, Material.BOWL, Material.STICK, Material.WOOD_BUTTON, Material.WOOL,
+            Material.CARPET);
     private static final String PLACEHOLDER =
             ChatColor.LIGHT_PURPLE + ChatColor.RESET.toString() + ChatColor.GREEN + "Smelting Placeholder";
 
     @EventHandler
     public void onClick(InventoryClickEvent event) {
-        if (event.getView().getTopInventory().getType() == InventoryType.FURNACE)
+        if (event.getView().getTopInventory().getType() == InventoryType.FURNACE) {
+            if (event.getSlotType() == InventoryType.SlotType.FUEL
+                    && !VANILLA_FUEL.contains(event.getCursor().getType())
+                    && Rail.recipes().getBurnTime(event.getCursor()) != 0) {
+                event.setCancelled(true);
+                if (event.getClick() == ClickType.LEFT) {
+                    if (ItemUtils.isNotNully(event.getCurrentItem())) {
+                        if (ItemUtils.isMatch(event.getCurrentItem(), event.getCursor())) {
+                            int transfer = Math.min(
+                                    event.getCurrentItem().getAmount() + event.getCursor().getAmount(),
+                                    event.getCursor().getMaxStackSize() - event.getCurrentItem().getAmount());
+                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
+                                event.getCurrentItem().setAmount(event.getCurrentItem().getAmount() + transfer);
+                                event.getCursor().setAmount(event.getCursor().getAmount() - transfer);
+                                if (ItemUtils.isNully(event.getCursor()))
+                                    event.setCursor(null);
+                            });
+                        } else {
+                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
+                                ItemStack cursor = event.getCursor();
+                                event.setCursor(event.getCurrentItem());
+                                event.setCurrentItem(cursor);
+                            });
+                        }
+                    } else {
+                        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
+                            event.setCurrentItem(event.getCursor());
+                            event.setCursor(null);
+                        });
+                    }
+                } else if (event.getClick() == ClickType.RIGHT) {
+                    if (ItemUtils.isNotNully(event.getCurrentItem())) {
+                        if (ItemUtils.isMatch(event.getCurrentItem(), event.getCursor())) {
+                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
+                                if (event.getCurrentItem().getAmount() < event.getCurrentItem().getMaxStackSize()) {
+                                    event.getCurrentItem().setAmount(event.getCurrentItem().getAmount() + 1);
+                                    if (event.getCursor().getAmount() == 1)
+                                        event.setCursor(null);
+                                    else
+                                        event.getCursor().setAmount(event.getCursor().getAmount() - 1);
+                                }
+                            });
+                        } else {
+                            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
+                                ItemStack cursor = event.getCursor();
+                                event.setCursor(event.getCurrentItem());
+                                event.setCurrentItem(cursor);
+                            });
+                        }
+                    } else {
+                        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
+                            if (event.getCursor().getAmount() == 1) {
+                                event.setCurrentItem(event.getCursor());
+                                event.setCursor(null);
+                            } else {
+                                event.setCurrentItem(event.getCursor().clone());
+                                event.getCurrentItem().setAmount(1);
+                                event.getCursor().setAmount(event.getCursor().getAmount() - 1);
+                            }
+                        });
+                    }
+                }
+            }
             checkFurnaceLater((FurnaceInventory)event.getView().getTopInventory());
+        }
         placeholderCheckLater((Player)event.getWhoClicked(), event.getView().getBottomInventory());
     }
 
@@ -105,8 +177,20 @@ public class SmeltingHandler implements Listener {
     @EventHandler
     public void onLight(FurnaceBurnEvent event) {
         FurnaceInventory inv = ((Furnace)event.getBlock().getState()).getInventory();
-        if (!canBurn(inv.getSmelting(), inv))
+        if (!canBurn(inv.getSmelting(), inv)) {
             event.setCancelled(true);
+        } else {
+            int burnTime = Rail.recipes().getBurnTime(inv.getFuel());
+            if (burnTime > 0) {
+                IContainerItem containerItem = AdapterUtils.adapt(IContainerItem.class, inv.getFuel());
+                if (containerItem != null) {
+                    Bukkit.getServer().getScheduler()
+                            .scheduleSyncDelayedTask(Rail.INSTANCE, () -> inv.setFuel(containerItem.getContainer()));
+                }
+                event.setBurning(true);
+                event.setBurnTime(burnTime);
+            }
+        }
     }
 
     @EventHandler
@@ -129,8 +213,8 @@ public class SmeltingHandler implements Listener {
     }
 
     private void checkFurnace(FurnaceInventory inv) {
-        if (ItemUtils.isNotNully(inv.getSmelting()) && canBurn(inv.getSmelting(), inv)) {
-            if (ItemUtils.isNotNully(inv.getFuel())) {
+        /*if (ItemUtils.isNotNully(inv.getSmelting()) && canBurn(inv.getSmelting(), inv)) {
+            if (inv.getHolder().getBurnTime() == 0 && ItemUtils.isNotNully(inv.getFuel())) {
                 int burnTime = Rail.recipes().getBurnTime(inv.getFuel());
                 if (burnTime > 0) {
                     IContainerItem containerItem = AdapterUtils.adapt(IContainerItem.class, inv.getFuel());
@@ -142,9 +226,10 @@ public class SmeltingHandler implements Listener {
                         else
                             inv.setFuel(null);
                     }
+                    inv.getHolder().setBurnTime((short)burnTime);
                 }
             }
-        }
+        }*/
     }
     
     private boolean canBurn(ItemStack stack, FurnaceInventory inv) {
