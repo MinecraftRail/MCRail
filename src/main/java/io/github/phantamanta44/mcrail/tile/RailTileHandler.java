@@ -2,6 +2,7 @@ package io.github.phantamanta44.mcrail.tile;
 
 import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.util.TileUtils;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -20,13 +21,17 @@ public class RailTileHandler implements Listener {
             Rail.tileManager().onTileClick(event);
     }
 
+    private boolean breakCheck(Block block, boolean dropTile) {
+        return Rail.tileManager().breakCheck(block, dropTile);
+    }
+
     private boolean breakCheck(Block block) {
-        return Rail.tileManager().breakCheck(block);
+        return breakCheck(block, true);
     }
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        if (breakCheck(event.getBlock()))
+        if (breakCheck(event.getBlock(), event.getPlayer().getGameMode() != GameMode.CREATIVE))
             event.setCancelled(true);
     }
 
@@ -45,7 +50,7 @@ public class RailTileHandler implements Listener {
         if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
             Sign sign = (Sign)event.getBlock().getState().getData();
             if (!event.getBlock().getRelative(sign.getAttachedFace()).getType().isSolid()
-                    && Rail.tileManager().breakCheck(event.getBlock())) {
+                    && Rail.tileManager().breakCheck(event.getBlock(), true)) {
                 event.setCancelled(true);
             }
         }

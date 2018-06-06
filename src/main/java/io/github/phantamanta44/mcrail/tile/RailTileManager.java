@@ -48,12 +48,13 @@ public class RailTileManager implements LongConsumer {
             tile.consumeEvent(event);
     }
 
-    public boolean breakCheck(Block block) {
+    public boolean breakCheck(Block block, boolean dropTile) {
         RailTile tile = entities.remove(new BlockPos(block));
         if (tile != null) {
             tile.destroy();
             Collection<ItemStack> drops = new LinkedList<>();
-            drops.add(Rail.itemRegistry().create(tile.id()));
+            if (dropTile)
+                drops.add(Rail.itemRegistry().create(tile.id()));
             tile.modifyDrops(drops);
             Location loc = block.getLocation().add(0.5D, 0.5D, 0.5D);
             block.setType(Material.AIR);
