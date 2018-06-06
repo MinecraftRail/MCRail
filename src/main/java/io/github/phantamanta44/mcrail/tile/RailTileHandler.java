@@ -15,6 +15,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Sign;
 
 public class RailTileHandler implements Listener {
@@ -38,14 +39,16 @@ public class RailTileHandler implements Listener {
         if (breakCheck(event.getBlock(), event.getPlayer().getGameMode() != GameMode.CREATIVE)) {
             event.setCancelled(true);
             Player player = event.getPlayer();
-            PlayerItemDamageEvent pide = new PlayerItemDamageEvent(
-                    player, player.getItemInHand(), 1);
-            Bukkit.getServer().getPluginManager().callEvent(pide);
-            if (!pide.isCancelled()) {
-                player.getItemInHand().setDurability((short)(player.getItemInHand().getDurability() + 1));
-                if (player.getItemInHand().getDurability() == player.getItemInHand().getType().getMaxDurability()) {
-                    player.setItemInHand(null);
-                    player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1F, 1F);
+            if (player.getItemInHand().getType().getMaxDurability() != 0) {
+                ItemStack inHand = player.getItemInHand();
+                PlayerItemDamageEvent pide = new PlayerItemDamageEvent(player, inHand, 1);
+                Bukkit.getServer().getPluginManager().callEvent(pide);
+                if (!pide.isCancelled()) {
+                    player.getItemInHand().setDurability((short)(inHand.getDurability() + 1));
+                    if (inHand.getDurability() == inHand.getType().getMaxDurability()) {
+                        player.setItemInHand(null);
+                        player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1F, 1F);
+                    }
                 }
             }
         }
