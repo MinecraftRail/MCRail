@@ -104,24 +104,17 @@ public class SmeltingHandler implements Listener {
                     }
                 }
             }
-            checkFurnaceLater((FurnaceInventory)event.getView().getTopInventory());
         }
         placeholderCheckLater((Player)event.getWhoClicked(), event.getView().getBottomInventory());
     }
 
     @EventHandler
     public void onDrag(InventoryDragEvent event) {
-        if (event.getView().getTopInventory().getType() == InventoryType.FURNACE)
-            checkFurnaceLater((FurnaceInventory)event.getView().getTopInventory());
         placeholderCheckLater((Player)event.getWhoClicked(), event.getView().getBottomInventory());
     }
 
     @EventHandler
     public void onMove(InventoryMoveItemEvent event) {
-        if (event.getSource().getType() == InventoryType.FURNACE)
-            checkFurnaceLater((FurnaceInventory)event.getSource());
-        else if (event.getDestination().getType() == InventoryType.FURNACE)
-            checkFurnaceLater((FurnaceInventory)event.getDestination());
         ItemStack original = event.getItem();
         if (placeholderCheck(event::getItem, event::setItem)) {
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> {
@@ -156,7 +149,6 @@ public class SmeltingHandler implements Listener {
                 placeholderCheck(() -> inv[index], stack -> inv[index] = stack);
             }
             inventory.setContents(inv);
-            player.updateInventory();
         });
     }
 
@@ -206,30 +198,6 @@ public class SmeltingHandler implements Listener {
                 event.getResult().setItemMeta(meta);
             }
         }
-    }
-
-    private void checkFurnaceLater(FurnaceInventory inv) {
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Rail.INSTANCE, () -> checkFurnace(inv));
-    }
-
-    private void checkFurnace(FurnaceInventory inv) {
-        /*if (ItemUtils.isNotNully(inv.getSmelting()) && canBurn(inv.getSmelting(), inv)) {
-            if (inv.getHolder().getBurnTime() == 0 && ItemUtils.isNotNully(inv.getFuel())) {
-                int burnTime = Rail.recipes().getBurnTime(inv.getFuel());
-                if (burnTime > 0) {
-                    IContainerItem containerItem = AdapterUtils.adapt(IContainerItem.class, inv.getFuel());
-                    if (containerItem != null) {
-                        inv.setFuel(containerItem.getContainer());
-                    } else {
-                        if (inv.getFuel().getAmount() > 1)
-                            inv.getFuel().setAmount(inv.getFuel().getAmount() - 1);
-                        else
-                            inv.setFuel(null);
-                    }
-                    inv.getHolder().setBurnTime((short)burnTime);
-                }
-            }
-        }*/
     }
     
     private boolean canBurn(ItemStack stack, FurnaceInventory inv) {
