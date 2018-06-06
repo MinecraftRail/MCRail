@@ -2,15 +2,19 @@ package io.github.phantamanta44.mcrail.tile;
 
 import io.github.phantamanta44.mcrail.Rail;
 import io.github.phantamanta44.mcrail.util.TileUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.material.Sign;
 
 public class RailTileHandler implements Listener {
@@ -31,8 +35,20 @@ public class RailTileHandler implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        if (breakCheck(event.getBlock(), event.getPlayer().getGameMode() != GameMode.CREATIVE))
+        if (breakCheck(event.getBlock(), event.getPlayer().getGameMode() != GameMode.CREATIVE)) {
             event.setCancelled(true);
+            Player player = event.getPlayer();
+            PlayerItemDamageEvent pide = new PlayerItemDamageEvent(
+                    player, player.getItemInHand(), 1);
+            Bukkit.getServer().getPluginManager().callEvent(pide);
+            if (!pide.isCancelled()) {
+                player.getItemInHand().setDurability((short)(player.getItemInHand().getDurability() + 1));
+                if (player.getItemInHand().getDurability() == player.getItemInHand().getType().getMaxDurability()) {
+                    player.setItemInHand(null);
+                    player.playSound(player.getLocation(), Sound.ITEM_BREAK, 1F, 1F);
+                }
+            }
+        }
     }
 
     @EventHandler

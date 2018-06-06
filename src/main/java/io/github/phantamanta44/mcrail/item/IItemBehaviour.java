@@ -4,6 +4,7 @@ import io.github.phantamanta44.mcrail.item.characteristic.IItemCharacteristic;
 import org.bukkit.Material;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
@@ -39,6 +40,10 @@ public interface IItemBehaviour {
     }
 
     default boolean onBlockBreak(BlockBreakEvent event, ItemStack stack) {
+        return true;
+    }
+
+    default boolean onPlayerDamage(EntityDamageEvent event, ItemStack stack) {
         return true;
     }
 

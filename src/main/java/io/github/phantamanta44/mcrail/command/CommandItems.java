@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 public class CommandItems implements CommandExecutor {
 
+    private static final int PAGE_SIZE = 10;
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player && !sender.hasPermission("rail.items")) {
@@ -44,13 +46,13 @@ public class CommandItems implements CommandExecutor {
             }
         }
         List<String> ids = Rail.itemRegistry().stream().map(Map.Entry::getKey).sorted().collect(Collectors.toList());
-        int pages = (int)Math.ceil((float)ids.size() / 8F);
+        int pages = (int)Math.ceil((float)ids.size() / PAGE_SIZE);
         if (page < 1 || page > pages) {
             sender.sendMessage(ChatColor.RED + "Invalid page number!");
         } else {
             sender.sendMessage(new String[]{
                     ChatColor.GRAY + String.format("Valid Item IDs (Page %d of %d):", page, pages),
-                    ids.stream().skip((page - 1) * 8).limit(8).collect(Collectors.joining("\n"))
+                    ids.stream().skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE).collect(Collectors.joining("\n"))
             });
         }
         return true;
