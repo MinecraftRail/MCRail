@@ -8,6 +8,7 @@ import org.bukkit.material.MaterialData;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class RecipeManager {
 
@@ -76,6 +77,14 @@ public class RecipeManager {
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .orElse(0);
+    }
+
+    public Stream<IGridRecipe> gridRecipes() {
+        return recipeReg.stream();
+    }
+
+    public Stream<RailSmeltRecipe> smeltRecipes() {
+        return smeltingReg.stream();
     }
 
 }

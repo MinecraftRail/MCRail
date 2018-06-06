@@ -38,8 +38,8 @@ public class RailTileManager implements LongConsumer {
 
     public void onTileClick(PlayerInteractEvent event) {
         RailTile tile = entities.get(new BlockPos(event.getClickedBlock()));
-        if (tile != null)
-            tile.onInteract(event);
+        if (tile != null && !tile.onInteract(event))
+            event.setCancelled(true);
     }
 
     public void dispatchEvent(BlockEvent event) {

@@ -26,7 +26,7 @@ public class BlockPos {
     }
 
     public boolean exists() {
-        return world() != null;
+        return world() != null && block().getChunk().isLoaded();
     }
 
     public World world() {

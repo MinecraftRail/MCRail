@@ -55,8 +55,8 @@ public abstract class RailTile {
         // NO-OP
     }
 
-    public void onInteract(PlayerInteractEvent event) {
-        // NO-OP
+    public boolean onInteract(PlayerInteractEvent event) {
+        return true;
     }
 
     protected <T extends BlockEvent> void on(Class<T> event, Consumer<T> handler) {
